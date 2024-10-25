@@ -1,0 +1,598 @@
+<?php
+
+namespace App\Http\Controllers\Customer;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\Customer;
+use App\Traits\HandleResponseTrait;
+use App\Traits\SendMailTrait;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
+
+class AuthController extends Controller
+{
+    use HandleResponseTrait, SendMailTrait;
+
+
+    public function register(Request $request) {
+        try {
+        $validator = Validator::make($request->all(), [
+            'first_name' => ['required','string','max:255'],
+            'last_name' => ['required','string','max:255'],
+            "username"=> ['required', 'unique:customers,username'],
+            'email' => ['nullable','email','unique:users,email'],
+            'phone' => ['required',
+            'string','unique:customers,phone'],
+            'password' => ['required',
+            'string','min:8',
+            'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W])[A-Za-z\d\W]+$/u',
+            'confirmed'],
+            // 'fcm_token'=> ['required','string']
+        ], [
+            "password.regex" => __('validation.regex'),
+            "required"=> __('validation.required'),
+            "string"=> __('validation.string'),
+            "max"=> __('validation.max.string'),
+            "email"=> __('validation.email'),
+            "unique"=> __('validation.unique'),
+            "numeric"=> __('validation.numeric'),
+            "regex"=> __('validation.regex'),
+            "confirmed"=> __('validation.confirmed'),
+            "phone.regex"=> __('validation.regex') . "must begin with +966"
+
+        ]);
+
+        if ($validator->fails()) {
+                return $this->handleResponse(
+                false,
+                "",
+                [$validator->errors()->first()],
+                [],
+                []
+            );
+        }
+
+        $user = Customer::create([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'username'=> $request->username,
+            'email' => $request->email,
+            'phone'=> $request->phone,
+            'password' => Hash::make($request->password),
+            // 'fcm_token'=> $request->fcm_token
+        ]);
+
+        if ($user) {
+            $code = rand(1000, 9999);
+
+            $user->last_otp = Hash::make($code);
+            $user->last_otp_expire = Carbon::now()->addMinutes(10)->timezone('Asia/Riyadh');
+            $user->save();
+            $message = "رمز التفعيل الخاص بك هو " . $code;
+
+            $this->sendEmail($user->email,"OTP", $message);
+        }
+
+
+        $token = $user->createToken('token')->plainTextToken;
+
+
+
+
+        return $this->handleResponse(
+            true,
+            __('strings.success_signup'),
+            [],
+            [
+                "user" => $user,
+                "token" => $token,
+                // "fcm_token"=> $user->fcm_token
+            ],
+            []
+        );
+
+
+        } catch (\Exception $e) {
+            return $this->handleResponse(
+                false,
+                // __('strings.error_signup'),
+                "",
+                [
+                    $e->getMessage()
+                ],
+                [],
+                []
+            );
+        }
+
+
+    } 
+
+    public function askEmailCode(Request $request) {
+        $user = $request->user();
+        if ($user) {
+            $code = rand(1000, 9999);
+
+            $user->last_otp = Hash::make($code);
+            $user->last_otp_expire = Carbon::now()->addMinutes(10)->timezone('Asia/Riyadh');
+            $user->save();
+
+            $message = "رمز التفعيل الخاص بك هو " . $code;
+
+            $this->sendEmail($user->email,"Dsito otp", $message);
+            return $this->handleResponse(
+                true,
+                __('strings.authcode'),
+                [],
+                [],
+                [
+                    "code get expired after 10 minuts",
+                    "the same endpoint you can use for ask resend email"
+                ]
+            );
+        }
+
+        return $this->handleResponse(
+            false,
+            "",
+            [__('strings.invalid_process')],
+            [],
+            [
+                "code get expired after 10 minuts",
+                "the same endpoint you can use for ask resend email"
+            ]
+        );
+    }
+
+    public function verifyEmail(Request $request) {
+        $validator = Validator::make($request->all(), [
+            "code" => ["required"],
+        ], [
+            "code.required" => __('validation.required'),
+        ]);
+
+        if ($validator->fails()) {
+            return $this->handleResponse(
+                false,
+                "",
+                [$validator->errors()->first()],
+                [],
+                []
+            );
+        }
+
+        $user = $request->user();
+        $code = $request->code;
+
+        if ($user) {
+            if (!Hash::check($code, $user->last_otp ? $user->last_otp : Hash::make(0000))) {
+                return $this->handleResponse(
+                    false,
+                    "",
+                    [__('strings.incorrect')],
+                    [],
+                    []
+                );
+            } else {
+                $timezone = 'Asia/Riyadh'; // Replace with your specific timezone if different
+                $verificationTime = new Carbon($user->last_otp_expire, $timezone);
+                if ($verificationTime->isPast()) {
+                    return $this->handleResponse(
+                        false,
+                        "",
+                        [__('strings.codexpired')],
+                        [],
+                        []
+                    );
+                } else {
+                    $user->verified = true;
+                    $user->save();
+
+
+
+
+                    if ($user) {
+                        return $this->handleResponse(
+                            true,
+                            __('strings.account_verified'),
+                            [],
+                            [],
+                            []
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    public function changePassword(Request $request) {
+        $validator = Validator::make($request->all(), [
+            "old_password" => 'required',
+            'password' => 'required|string|min:8|
+            regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]+$/u
+            |confirmed',
+            ], [
+            "password.regex" => __('validation.regex'),
+            "required"=> __('validation.required'),
+            "string"=> __('validation.string'),
+            "min"=> __('validation.min.string'),
+            "confirmed"=> __('validation.confirmed')
+            ]);
+
+        if ($validator->fails()) {
+            return $this->handleResponse(
+                false,
+                "",
+                [$validator->errors()->first()],
+                [],
+                []
+            );
+        }
+
+        $user = $request->user();
+        $old_password = $request->old_password;
+
+        if ($user) {
+            if (!Hash::check($old_password, $user->password)) {
+                return $this->handleResponse(
+                    false,
+                    "",
+                    [__('strings.currentpass_invalid')],
+                    [],
+                    []
+                );
+            }
+
+            $user->password = Hash::make($request->password);
+            $user->save();
+
+            return $this->handleResponse(
+                true,
+                __('strings.password_changed'),
+                [],
+                [],
+                []
+            );
+        }
+    }
+
+    public function sendForgetPasswordEmail(Request $request) {
+        $validator = Validator::make($request->all(), [
+            "phone" => 'required|regex:/^\+966[0-9]{9}$/',
+        ],[
+            "required"=> __('validation.required'),
+            "regex"=> __('validation.regex')
+        ]);
+
+        if ($validator->fails()) {
+            return $this->handleResponse(
+                false,
+                "",
+                [$validator->errors()->first()],
+                [],
+                ["اكتب رقم التليفون في الbody وخليه بيبدأ بـ +966 وبعدها 9 ارقام"]
+            );
+        }
+
+        $user = User::where("phone", $request->phone)->first();
+
+
+            if ($user) {
+                $code = rand(1000, 9999);
+
+                $user->email_last_verfication_code = Hash::make($code);
+                $user->email_last_verfication_code_expird_at = Carbon::now()->addMinutes(10)->timezone('Asia/Riyadh');
+                $user->save();
+    
+    
+                $message = "رمز تعيين كلمة المرور الخاص بك هو " . $code;
+
+                $this->sendOtp($user->phone, $message);
+    
+    
+                return $this->handleResponse(
+                    true,
+                    __('strings.authcode'),
+                    [],
+                    [],
+                    [
+                        "code get expired after 10 minuts",
+                        "the same endpoint you can use for ask resend email"
+                    ]
+                );
+            }
+            else {
+                return $this->handleResponse(
+                    false,
+                    "",
+                    [__('strings.email_notused')],
+                    [],
+                    []
+                );
+            }
+    }
+    public function forgetPasswordCheckCode(Request $request) {
+        $validator = Validator::make($request->all(), [
+            "phone" => ["required","regex:/^\+966[0-9]{9}$/"],
+            "code" => ["required"],
+        ], [
+            "required"=> __('validation.required'),
+            "regex"=> __('validation.regex')
+        ]);
+
+
+        if ($validator->fails()) {
+            return $this->handleResponse(
+                false,
+                "",
+                [$validator->errors()->first()],
+                [],
+                ["اكتب رقم التليفون في الbody وخليه بيبدأ بـ +966 وبعدها 9 ارقام"]
+            );
+        }
+
+
+
+
+        $user = User::where("phone", $request->phone)->first();
+        $code = $request->code;
+
+
+        if ($user) {
+            if (!Hash::check($code, $user->email_last_verfication_code ? $user->email_last_verfication_code : Hash::make(0000))) {
+                return $this->handleResponse(
+                    false,
+                    "",
+                    [__('strings.incorrect')],
+                    [],
+                    []
+                );
+            } else {
+                $timezone = 'Asia/Riyadh'; // Replace with your specific timezone if different
+                $verificationTime = new Carbon($user->email_last_verfication_code_expird_at, $timezone);
+                if ($verificationTime->isPast()) {
+                    return $this->handleResponse(
+                        false,
+                        "",
+                        [__('strings.codexpired')],
+                        [],
+                        []
+                    );
+                } else {
+                    if ($user) {
+                        return $this->handleResponse(
+                            true,
+                            __('strings.verified'),
+                            [],
+                            [],
+                            []
+                        );
+                    }
+                }
+            }
+        } else {
+            return $this->handleResponse(
+                false,
+                "",
+                [__('strings.email_notused')],
+                [],
+                []
+            );
+        }
+
+
+    }
+
+    public function forgetPassword(Request $request) {
+        $validator = Validator::make($request->all(), [
+            "phone" => ["required", "regex:/^\+966[0-9]{9}$/"],
+            'password' => [
+                'required', // Required only if joined_with is 1
+                'min:8',
+                'regex:/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]+$/u',
+                'confirmed'
+            ],
+        ], [
+            "email.required" => __('validation.required'),
+            "password.required" => __('validation.required'),
+            "password.min" => __('validation.min.string'),
+            "password.regex" => __('validation.regex'),
+            "password.confirmed" => __('validation.confirmed'),
+        ]);
+
+
+        if ($validator->fails()) {
+            return $this->handleResponse(
+                false,
+                "",
+                [$validator->errors()->first()],
+                [],
+                ["اكتب رقم التليفون في الbody" . "وخليه بيبدأ دايما بـ +966 وبعدها 9 ارقام"]
+            );
+        }
+
+
+
+
+        $user = User::where("phone", $request->phone)->first();
+        $code = $request->code;
+
+
+        if ($user) {
+            $user->password = Hash::make($request->password);
+            $user->save();
+
+
+            if ($user) {
+                return $this->handleResponse(
+                    true,
+                    __('strings.password_changed'),
+                    [],
+                    [],
+                    []
+                );
+            }
+        }
+        else {
+            return $this->handleResponse(
+                false,
+                "",
+                [__('strings.email_notused')],
+                [],
+                []
+            );
+        }
+
+
+    }
+
+    public function login(Request $request) {
+        $credentials = $request->only('phone', 'password');
+        if (Auth::attempt(['phone' => $request->phone, 'password' => $request->password])) {
+            $user = Auth::user();
+            if ($user) {
+                $code = rand(1000, 9999);
+
+                $user->email_last_verfication_code = Hash::make($code);
+                $user->email_last_verfication_code_expird_at = Carbon::now()->addMinutes(10)->timezone('Asia/Riyadh');
+                $user->save();
+    
+    
+                $message = "رمز تسجيل الدخول الخاص بك هو " . $code;
+
+                $this->sendOtp($user->phone, $message);
+    
+    
+                return $this->handleResponse(
+                    true,
+                    __('strings.authcode'),
+                    [],
+                    [],
+                    [
+                        "code get expired after 10 minuts",
+                        "the same endpoint you can use for ask resend email"
+                    ]
+                );
+            }
+            else {
+                return $this->handleResponse(
+                    false,
+                    "",
+                    [__('strings.email_notused')],
+                    [],
+                    []
+                );
+            }
+
+        }else  {
+                return $this->handleResponse(
+                false,
+                "",
+                [__('strings.invalid_credentials')],
+                [],
+                []
+            );
+        }
+    }
+
+    public function loginCode(Request $request){
+        $validator = Validator::make($request->all(), [
+            "phone"=> "required|exists:users,phone|regex:/^\+966[0-9]{9}$/",
+            "code"=> "required|numeric",
+            'fcm_token'=> 'required|string'
+        ],[
+            "required"=> __('validation.required'),
+            "exists"=> __('validation.exists'),
+            "numeric"=> __('validation.numeric'),
+            "regex"=> __('validation.regex')
+        ]);
+        if($validator->fails()){
+            return $this->handleResponse(
+                false,
+                "",
+                [$validator->errors()->first()],
+                [],
+                ["اكتب رقم التليفون في الbody وخليه بيبدأ بـ +966 وبعدها 9 ارقام"]
+            );
+        }
+
+        $user = User::where("phone", $request->phone)->first();
+        $user->fcm_token = $request->fcm_token;
+        $user->save();
+        $code = $request->code;
+
+
+        if ($user) {
+            if (!Hash::check($code, $user->email_last_verfication_code ? $user->email_last_verfication_code : Hash::make(0000))) {
+                return $this->handleResponse(
+                    false,
+                    "",
+                    [__('strings.incorrect')],
+                    [],
+                    []
+                );
+            } else {
+                $timezone = 'Asia/Riyadh'; // Replace with your specific timezone if different
+                $verificationTime = new Carbon($user->email_last_verfication_code_expird_at, $timezone);
+                if ($verificationTime->isPast()) {
+                    return $this->handleResponse(
+                        false,
+                        "",
+                        [__('strings.codexpired')],
+                        [],
+                        []
+                    );
+                } else {
+                    if ($user) {
+                        $token = $user->createToken('token')->plainTextToken;
+                        return $this->handleResponse(
+                            true,
+                            __('strings.verified'),
+                            [],
+                            [
+                                "token"=> $token,
+                                "fcm_token"=> $user->fcm_token
+                            ],
+                            []
+                        );
+                    }
+                }
+            }
+        } else {
+            return $this->handleResponse(
+                false,
+                "",
+                [__('strings.email_notused')],
+                [],
+                []
+            );
+        }
+    }
+
+    public function logout(Request $request) {
+        $user = $request->user();
+
+
+        if ($user) {
+            if ($user->tokens())
+                $user->tokens()->delete();
+        }
+
+
+        return $this->handleResponse(
+            true,
+            __('strings.logedout'),
+            [],
+            [
+            ],
+            [
+                "On logout" => "كل التوكينز بتتمسح انت كمان امسحها من الكاش عندك"
+            ]
+        );
+    }
+
+}
+
