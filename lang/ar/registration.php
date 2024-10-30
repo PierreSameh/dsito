@@ -14,6 +14,6 @@ return [
     "password changed successfully" => "تم تغيير كلمة المرور بنجاح",
     "you are not registered" => "أنت غير مسجل، رقم الهاتف غير مستخدم",
     "Invalid Credentials" => "بيانات اعتماد غير صحيحة",
-    "You are Login In" => "أنت تقوم بتسجيل الدخول",
+    "You are Loged In" => "لقد قمت بتسجيل الدخول",
     "logged out" => "تم تسجيل الخروج"
 ];

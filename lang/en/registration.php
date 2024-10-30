@@ -14,6 +14,6 @@ return [
     "password changed successfully" => "password changed successfully",
     "you are not registered" => "you are not registered, you phone is not used",
     "Invalid Credentials" => "Invalid Credentials",
-    "You are Login In" => "You are Login In",
+    "You are Loged In" => "You are Logged In",
     "logged out" => "Logged Out"
 ];
