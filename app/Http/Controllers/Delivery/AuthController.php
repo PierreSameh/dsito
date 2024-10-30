@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Customer;
+namespace App\Http\Controllers\Delivery;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -20,12 +20,15 @@ class AuthController extends Controller
     public function register(Request $request) {
         try {
         $validator = Validator::make($request->all(), [
-            'first_name' => ['required','string','max:255'],
-            'last_name' => ['required','string','max:255'],
+            "full_name" => ['required', "string", 'regex:/^([A-Za-zÀ-ÖØ-öø-ÿ]+(?:\s+[A-Za-zÀ-ÖØ-öø-ÿ]+){3})$/'],
             "username"=> ['required', 'unique:customers,username'],
+            "national_id" => ['required', 'string', 'numeric' ,'digits:14'],
             'email' => ['nullable','email'],
             'phone' => ['required',
-            'string','unique:customers,phone'],
+            'string','unique:customers,phone', 'numeric', 'digits:11'],
+            'id_front'=> ['required','image'],
+            'id_back'=> ['required','image'],
+            'selfie'=> ['required','image'],
             'password' => ['required',
             'string','min:8',
             'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W])[A-Za-z\d\W]+$/u',
@@ -54,11 +57,18 @@ class AuthController extends Controller
                 []
             );
         }
-
+        $explode = explode(' ', $request->full_name);
+        $firstName = $explode[0];
+        $lastName = $explode[3];
         $user = Customer::create([
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
+            'full_name' => $request->full_name,
+            'first_name' => $firstName,
+            'last_name' => $lastName,
             'username'=> $request->username,
+            "national_id" => $request->national_id,
+            "id_front" => $request->file('id_front')->store('/storage/docs', 'public'),
+            "id_back" => $request->file('id_back')->store('/storage/docs', 'public'),
+            "selfie" => $request->file('selfie')->store('/storage/docs', 'public'),
             'email' => $request->email,
             'phone'=> $request->phone,
             'password' => Hash::make($request->password),
