@@ -31,4 +31,8 @@ class Customer extends Authenticatable
         "verified"
     ];
 
+
+    public function placeOrders(){
+        return $this->hasMany(PlaceOrder::class);
+    }
 }
