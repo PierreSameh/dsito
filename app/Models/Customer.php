@@ -40,4 +40,8 @@ class Customer extends Authenticatable
         return $this->hasMany(PlaceOrder::class);
     }
 
+    public function wallet(){
+        return $this->hasOne(Wallet::class);
+    }
+
 }
