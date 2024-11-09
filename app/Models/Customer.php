@@ -22,6 +22,8 @@ class Customer extends Authenticatable
         "email",
         "password",
         "delivery",
+        "lng",
+        "lat",
         "national_id",
         "id_front",
         "id_back",
@@ -42,6 +44,10 @@ class Customer extends Authenticatable
 
     public function wallet(){
         return $this->hasOne(Wallet::class);
+    }
+
+    public function orders(){
+        return $this->hasMany(Order::class);
     }
 
 }
