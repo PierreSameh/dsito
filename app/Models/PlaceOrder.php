@@ -28,4 +28,9 @@ class PlaceOrder extends Model
     public function order(){
         return $this->hasOne(Order::class);
     }
+
+    public function negotiations()
+    {
+        return $this->hasMany(OrderNegotiation::class);
+    }
 }

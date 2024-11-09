@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Customer\FavoriteController;
 use App\Http\Controllers\Customer\PlaceOrderController;
+use App\Http\Controllers\Customer\NegotiateController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Customer\AuthController;
@@ -24,4 +25,8 @@ Route::prefix('customer')->group(function () {
 
     //Place Order
     Route::post('/place-order', [PlaceOrderController::class, 'placeOrder'])->middleware('auth:sanctum,customer');
+
+    //Negotiate
+    Route::post('/order/propose', [NegotiateController::class, 'proposePrice'])->middleware('auth:sanctum,customer');
+    Route::post('/order/respond-propose', [NegotiateController::class, 'respondToProposal'])->middleware('auth:sanctum,customer');
 });
