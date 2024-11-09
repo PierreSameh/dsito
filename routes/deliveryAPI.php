@@ -1,17 +1,15 @@
 <?php
 
 use App\Http\Controllers\Delivery\AuthController;
+use App\Http\Controllers\Delivery\LocationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('delivery')->group(function () {
+    //Auth
     Route::post('/register', [AuthController::class, 'register']);
-    Route::get('/ask-email-verification-code', [AuthController::class, "askEmailCode"])->middleware('auth:sanctum,customer');
-    Route::post('/verify-email', [AuthController::class, "verifyEmail"])->middleware('auth:sanctum,customer');
-    Route::post('/change-password', [AuthController::class, "changePassword"])->middleware('auth:sanctum,customer');
-    Route::get('/forgot-password', [AuthController::class, "sendForgetPassword"]);
-    Route::post('/forgot-password-check-code', [AuthController::class, "forgetPasswordCheckCode"]);
-    Route::post('/forgot-password-set', [AuthController::class,'forgetPassword']);
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/logout', [AuthController::class, "logout"])->middleware('auth:sanctum');
+
+
+    //Location
+    Route::post('/set-location', [LocationController::class, 'setDeliveryLocation'])->middleware('auth:sanctum,customer');
 });
