@@ -6,6 +6,8 @@ return [
     "propose sent" => "تم إرسال اقتراحك بنجاح",
     "can not respond self" => "لا يمكنك الرد على اقتراحك",
     "start order" => "تم بدء طلب جديد",
-    "propose respond recorded" => "تم تسجيل ردك"
+    "propose respond recorded" => "تم تسجيل ردك",
+    "not available" => "هذا الطلب غير متاح",
+
 
 ];

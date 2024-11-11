@@ -17,6 +17,7 @@ Route::prefix('delivery')->group(function () {
 
     //Orders
     Route::get('/nearby-orders', [OrderController::class, 'nearbyOrders'])->middleware('auth:sanctum,customer');
+    Route::post('/order/accept', [OrderController::class, 'accept'])->middleware("auth:sanctum,customer");
 
     //Negotiate
     Route::post('/order/propose', [NegotiateController::class, 'proposePrice'])->middleware('auth:sanctum,customer');

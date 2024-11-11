@@ -58,6 +58,7 @@ class NegotiateController extends Controller
         }
         
         $negotiation = OrderNegotiation::findOrFail($request->negotiation_id);
+        $placeOrder = PlaceOrder::findOrFail($negotiation->place_order_id);
 
  
         $customer = $request->user();
@@ -75,6 +76,7 @@ class NegotiateController extends Controller
         $negotiation->save();
 
         if ($negotiation->status == 'accepted') {
+            $placeOrder->update(["status" => "accepted"]);
             $order = Order::create([
                 "place_order_id" => $negotiation->placeOrder->id,
                 "delivery_id" => $negotiation->delivery_id,
