@@ -6,7 +6,7 @@ use App\Http\Controllers\Customer\NegotiateController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Customer\AuthController;
-
+use App\Http\Controllers\Customer\OrderController;
 
 Route::prefix('customer')->group(function () {
     //Auth
@@ -22,6 +22,9 @@ Route::prefix('customer')->group(function () {
 
     //Place Order
     Route::post('/place-order', [PlaceOrderController::class, 'placeOrder'])->middleware('auth:sanctum,customer');
+
+    //Order
+    Route::get('/order/active', [OrderController::class, 'getActive'])->middleware("auth:sanctum,customer");
 
     //Negotiate
     Route::post('/order/propose', [NegotiateController::class, 'proposePrice'])->middleware('auth:sanctum,customer');

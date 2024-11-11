@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use App\Traits\HandleResponseTrait;
 use Illuminate\Support\Facades\Validator;
 use App\Models\PlaceOrder;
+use Carbon\Carbon;
+
 class OrderController extends Controller
 {
     use HandleResponseTrait;
@@ -113,7 +115,9 @@ class OrderController extends Controller
         $delivery = $request->user();
         $lastOrder = $delivery->orders()
         ->whereNotIn('status', ['completed', 'cancelled_user', 'cancelled_delivery'])
-        ->with('placeOrder')
+        ->with(['placeOrder.customer' => function ($query) {
+            $query->select('id','first_name', 'last_name','username', 'phone');
+        }])
         ->latest()->first();
         if($lastOrder){
             return $this->handleResponse(
@@ -224,6 +228,7 @@ class OrderController extends Controller
                 $wallet->save();
             }
             $lastOrder->status = "completed";
+            $lastOrder->delivery_time = Carbon::now(); 
             $lastOrder->save();
             return $this->handleResponse(
                 true,

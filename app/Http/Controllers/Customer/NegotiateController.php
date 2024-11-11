@@ -29,7 +29,7 @@ class NegotiateController extends Controller
 
         $proposer = $request->user();
         if($placeOrder->payment_method == "wallet"){
-            $wallet = Wallet::where("customer_id", $placeOrder->customer_id);
+            $wallet = Wallet::where("customer_id", $placeOrder->customer_id)->first();
             if($wallet->balance < $request->proposed_price){
                 return $this->handleResponse(
                     false,
@@ -90,7 +90,7 @@ class NegotiateController extends Controller
 
         if ($negotiation->status == 'accepted') {
             if($placeOrder->payment_method == "wallet"){
-                $wallet = Wallet::where("customer_id", $placeOrder->customer_id);
+                $wallet = Wallet::where("customer_id", $placeOrder->customer_id)->first();
                 if($wallet->balance < $negotiation->proposed_price){
                     return $this->handleResponse(
                         false,

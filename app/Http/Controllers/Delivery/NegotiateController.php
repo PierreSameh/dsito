@@ -77,7 +77,7 @@ class NegotiateController extends Controller
 
         if ($negotiation->status == 'accepted') {
             if($placeOrder->payment_method == "wallet"){
-                $wallet = Wallet::where("customer_id", $placeOrder->customer_id);
+                $wallet = Wallet::where("customer_id", $placeOrder->customer_id)->first();
                 $wallet->balance -=  $negotiation->proposed_price;
                 $wallet->save();
             }
