@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Delivery;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\Wallet;
 use Illuminate\Http\Request;
 use App\Traits\HandleResponseTrait;
 use Illuminate\Support\Facades\Validator;
@@ -80,7 +81,13 @@ class OrderController extends Controller
                 "price" => $placeOrder->price
             ]);
             $placeOrder->update(["status" => "accepted"]);
-
+            if($placeOrder->payment_method == "wallet"){
+                $wallet = Wallet::where('customer_id', $placeOrder->customer_id)->first();
+                $wallet->balance -= $placeOrder->price;
+                $wallet->save();
+                $placeOrder->paid = 1;
+                $placeOrder->save();
+            }
             $order->load("placeOrder");
             return $this->handleResponse(
                 true,
@@ -104,8 +111,8 @@ class OrderController extends Controller
 
     public function getActive(Request $request){
         $delivery = $request->user();
-        $lastOrder = $delivery->orders()->
-        whereNotIn('status', ['completed', 'cancelled_user', 'cancelled_delivery'])
+        $lastOrder = $delivery->orders()
+        ->whereNotIn('status', ['completed', 'cancelled_user', 'cancelled_delivery'])
         ->with('placeOrder')
         ->latest()->first();
         if($lastOrder){
@@ -130,8 +137,8 @@ class OrderController extends Controller
 
     public function setFirstPoint(Request $request){
         $delivery = $request->user();
-        $lastOrder = $delivery->orders()->
-        whereNotIn('status', ['completed', 'cancelled_user', 'cancelled_delivery'])
+        $lastOrder = $delivery->orders()
+        ->whereNotIn('status', ['completed', 'cancelled_user', 'cancelled_delivery'])
         ->with('placeOrder')
         ->latest()->first();
         if($lastOrder){
@@ -141,7 +148,7 @@ class OrderController extends Controller
                 true,
                 __("order.status updated"),
                 [],
-                [],
+                [$lastOrder],
                 []
             );
         }
@@ -155,8 +162,8 @@ class OrderController extends Controller
     }
     public function setReceived(Request $request){
         $delivery = $request->user();
-        $lastOrder = $delivery->orders()->
-        whereNotIn('status', ['completed', 'cancelled_user', 'cancelled_delivery'])
+        $lastOrder = $delivery->orders()
+        ->whereNotIn('status', ['completed', 'cancelled_user', 'cancelled_delivery'])
         ->with('placeOrder')
         ->latest()->first();
         if($lastOrder){
@@ -166,7 +173,7 @@ class OrderController extends Controller
                 true,
                 __("order.status updated"),
                 [],
-                [],
+                [$lastOrder],
                 []
             );
         }
@@ -180,8 +187,8 @@ class OrderController extends Controller
     }
     public function setSecPoint(Request $request){
         $delivery = $request->user();
-        $lastOrder = $delivery->orders()->
-        whereNotIn('status', ['completed', 'cancelled_user', 'cancelled_delivery'])
+        $lastOrder = $delivery->orders()
+        ->whereNotIn('status', ['completed', 'cancelled_user', 'cancelled_delivery'])
         ->with('placeOrder')
         ->latest()->first();
         if($lastOrder){
@@ -191,7 +198,38 @@ class OrderController extends Controller
                 true,
                 __("order.status updated"),
                 [],
+                [$lastOrder],
+                []
+            );
+        }
+        return $this->handleResponse(
+            true,
+            __("order.no ongoing"),
+            [],
+            [],
+            []
+        );
+    }
+    public function setCompleted(Request $request){
+        $delivery = $request->user();
+        $wallet = Wallet::where('customer_id', $delivery->id)->first();
+        $lastOrder = $delivery->orders()
+        ->whereNotIn('status', ['completed', 'cancelled_user', 'cancelled_delivery'])
+        ->with('placeOrder')
+        ->latest()->first();
+        if($lastOrder){
+            $placeOrder = PlaceOrder::findOrFail($lastOrder->place_order_id);
+            if($placeOrder->payment_method == "wallet"){
+                $wallet->balance += $lastOrder->price;
+                $wallet->save();
+            }
+            $lastOrder->status = "completed";
+            $lastOrder->save();
+            return $this->handleResponse(
+                true,
+                __("order.status updated"),
                 [],
+                [$lastOrder],
                 []
             );
         }

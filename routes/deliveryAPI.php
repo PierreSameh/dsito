@@ -24,6 +24,7 @@ Route::prefix('delivery')->group(function () {
     Route::post("/order/status/first-point", [OrderController::class, 'setFirstPoint'])->middleware('auth:sanctum,customer');
     Route::post("/order/status/received", [OrderController::class, 'setReceived'])->middleware('auth:sanctum,customer');
     Route::post("/order/status/sec-point", [OrderController::class, 'setSecPoint'])->middleware('auth:sanctum,customer');
+    Route::post("/order/status/completed", [OrderController::class, 'setCompleted'])->middleware('auth:sanctum,customer');
 
 
     //Negotiate

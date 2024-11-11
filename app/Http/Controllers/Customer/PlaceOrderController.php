@@ -47,6 +47,18 @@ class PlaceOrderController extends Controller
             }
 
             $user = $request->user();
+            if($request->payment_method == "wallet"){
+                $wallet = $user->wallet()->first();
+                if($wallet->balance < $request->price){
+                    return $this->handleResponse(
+                        false,
+                        __("order.no enough balance"),
+                        [],
+                        [],
+                        []
+                    );
+                }
+            }
             $addressFrom = $lngFrom = $latFrom = null;
             $addressTo = $lngTo = $latTo = null;
             if($request->favorite_from){

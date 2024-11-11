@@ -11,4 +11,5 @@ return [
     "many at the moment" => "you can't take many orders at the same moment",
     "no ongoing" => "you have no on-going orders",
     "status updated" => "order status updated successfully",
+    "no enough balance" => "your balance is not enough",
 ];

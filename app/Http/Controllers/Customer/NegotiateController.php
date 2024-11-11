@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Wallet;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderNegotiation;
@@ -76,6 +77,11 @@ class NegotiateController extends Controller
         $negotiation->save();
 
         if ($negotiation->status == 'accepted') {
+            if($placeOrder->payment_method == "wallet"){
+                $wallet = Wallet::where("customer_id", $placeOrder->customer_id);
+                $wallet->balance -=  $negotiation->proposed_price;
+                $wallet->save();
+            }
             $placeOrder->update(["status" => "accepted"]);
             $order = Order::create([
                 "place_order_id" => $negotiation->placeOrder->id,
