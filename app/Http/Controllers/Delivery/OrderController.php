@@ -7,11 +7,10 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Traits\HandleResponseTrait;
 use Illuminate\Support\Facades\Validator;
-use App\Traits\CalculateDistanceTrait;
 use App\Models\PlaceOrder;
 class OrderController extends Controller
 {
-    use HandleResponseTrait, CalculateDistanceTrait;
+    use HandleResponseTrait;
 
     public function nearbyOrders(Request $request){
         $delivery = $request->user();
@@ -28,7 +27,7 @@ class OrderController extends Controller
         ->where('status', 'pending')
         ->with(['customer' => function ($query) {
             $query->select('id','first_name', 'last_name','username', 'phone');
-        }])        ->orderBy('distance')
+        }])->orderBy('distance')
         ->get();
 
         if(count($placeOrders) > 0){
@@ -61,7 +60,18 @@ class OrderController extends Controller
 
         $placeOrder = PlaceOrder::findOrFail($request->place_order_id);
         $delivery = $request->user();
-        
+        $lastOrder = $delivery->orders()->
+        whereNotIn('status', ['completed', 'cancelled_user', 'cancelled_delivery'])
+        ->latest()->first();
+        if ($lastOrder){
+            return $this->handleResponse(
+                false,
+                __("order.many at the moment"),
+                [],
+                [],
+                []
+            );
+        }
         //Check placed order status (must be pending)
         if($placeOrder->status == "pending"){
             $order = Order::create([
@@ -90,5 +100,31 @@ class OrderController extends Controller
             []
         );
 
+    }
+
+    public function getActive(Request $request){
+        $delivery = $request->user();
+        $lastOrder = $delivery->orders()->
+        whereNotIn('status', ['completed', 'cancelled_user', 'cancelled_delivery'])
+        ->with('placeOrder')
+        ->latest()->first();
+        if($lastOrder){
+            return $this->handleResponse(
+                true,
+                "",
+                [],
+                [
+                    "active_order" => $lastOrder
+                ],
+                []
+            );
+        }
+        return $this->handleResponse(
+            true,
+            __("order.no ongoing"),
+            [],
+            [],
+            []
+        );
     }
 }
