@@ -28,6 +28,18 @@ class NegotiateController extends Controller
         $placeOrder = PlaceOrder::findOrFail($request->place_order_id);
 
         $proposer = $request->user();
+        if($placeOrder->payment_method == "wallet"){
+            $wallet = Wallet::where("customer_id", $placeOrder->customer_id);
+            if($wallet->balance < $request->proposed_price){
+                return $this->handleResponse(
+                    false,
+                    __("order.no enough balance"),
+                    [],
+                    [],
+                    []
+                );
+            }
+        }
         // Create a new negotiation proposal
         $negotiation = OrderNegotiation::create([
             'place_order_id' => $placeOrder->id,
@@ -79,6 +91,15 @@ class NegotiateController extends Controller
         if ($negotiation->status == 'accepted') {
             if($placeOrder->payment_method == "wallet"){
                 $wallet = Wallet::where("customer_id", $placeOrder->customer_id);
+                if($wallet->balance < $negotiation->proposed_price){
+                    return $this->handleResponse(
+                        false,
+                        __("order.no enough balance"),
+                        [],
+                        [],
+                        []
+                    );
+                }
                 $wallet->balance -=  $negotiation->proposed_price;
                 $wallet->save();
             }
