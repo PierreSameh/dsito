@@ -127,4 +127,81 @@ class OrderController extends Controller
             []
         );
     }
+
+    public function setFirstPoint(Request $request){
+        $delivery = $request->user();
+        $lastOrder = $delivery->orders()->
+        whereNotIn('status', ['completed', 'cancelled_user', 'cancelled_delivery'])
+        ->with('placeOrder')
+        ->latest()->first();
+        if($lastOrder){
+            $lastOrder->status = "first_point";
+            $lastOrder->save();
+            return $this->handleResponse(
+                true,
+                __("order.status updated"),
+                [],
+                [],
+                []
+            );
+        }
+        return $this->handleResponse(
+            true,
+            __("order.no ongoing"),
+            [],
+            [],
+            []
+        );
+    }
+    public function setReceived(Request $request){
+        $delivery = $request->user();
+        $lastOrder = $delivery->orders()->
+        whereNotIn('status', ['completed', 'cancelled_user', 'cancelled_delivery'])
+        ->with('placeOrder')
+        ->latest()->first();
+        if($lastOrder){
+            $lastOrder->status = "received";
+            $lastOrder->save();
+            return $this->handleResponse(
+                true,
+                __("order.status updated"),
+                [],
+                [],
+                []
+            );
+        }
+        return $this->handleResponse(
+            true,
+            __("order.no ongoing"),
+            [],
+            [],
+            []
+        );
+    }
+    public function setSecPoint(Request $request){
+        $delivery = $request->user();
+        $lastOrder = $delivery->orders()->
+        whereNotIn('status', ['completed', 'cancelled_user', 'cancelled_delivery'])
+        ->with('placeOrder')
+        ->latest()->first();
+        if($lastOrder){
+            $lastOrder->status = "sec_point";
+            $lastOrder->save();
+            return $this->handleResponse(
+                true,
+                __("order.status updated"),
+                [],
+                [],
+                []
+            );
+        }
+        return $this->handleResponse(
+            true,
+            __("order.no ongoing"),
+            [],
+            [],
+            []
+        );
+    }
+
 }

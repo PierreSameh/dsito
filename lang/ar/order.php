@@ -9,6 +9,8 @@ return [
     "propose respond recorded" => "تم تسجيل ردك",
     "not available" => "هذا الطلب غير متاح",
     "many at the moment" => "لا يمكنك تلقي عدة طلبات في نفس الوقت",
-    "no ongoing" => "لا يوجد طلبات قيد التنفيذ"
+    "no ongoing" => "لا يوجد طلبات قيد التنفيذ",
+    "status updated" => "تم تحديث حالة الطلب بنجاح",
+
 
 ];
