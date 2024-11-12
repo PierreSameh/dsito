@@ -108,6 +108,35 @@ class NegotiateController extends Controller
             []
         );
     }
+
+    public function getProposals(Request $request){
+        $delivery = $request->user();
+        $negotiations = OrderNegotiation::where('delivery_id', $delivery->id)->whereNotNull('customer_id')
+        ->whereHas('placeOrder', function ($query){
+            $query->where('status', 'pending');
+        })->orderBy('created_at', 'desc')
+        ->with(['placeOrder','customer' => function ($q){
+            $q->select('id', 'first_name', 'last_name', 'phone');
+        }])->get();
+        if(count($negotiations) > 0){
+            return $this->handleResponse(
+                true,
+                "",
+                [],
+                [
+                    "negotiations" => $negotiations
+                ],
+                []
+            );
+        }
+        return $this->handleResponse(
+            false,
+            __("order.no negotiations yet"),
+            [],
+            [],
+            []
+        );
+    }
 }
 
 
