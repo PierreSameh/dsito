@@ -19,6 +19,7 @@ class NegotiateController extends Controller
         $validator = Validator::make($request->all(), [
             'place_order_id' => 'required|exists:place_orders,id',
             'proposed_price' => 'required|numeric|min:0',
+            'delivery_id' => 'required|numeric|exists:customers,id'
         ]);
         
         if ($validator->fails()) {
@@ -44,6 +45,7 @@ class NegotiateController extends Controller
         $negotiation = OrderNegotiation::create([
             'place_order_id' => $placeOrder->id,
             'customer_id' => $proposer->id,
+            'delivery_id' => $request->delivery_id,
             'proposed_price' => $request->proposed_price,
             'status' => 'pending',
         ]);
@@ -127,6 +129,42 @@ class NegotiateController extends Controller
             [
                 'negotiation' => $negotiation,
             ],
+            []
+        );
+    }
+
+    public function getProposals(Request $request){
+        $user = $request->user();
+        $lastOrder = PlaceOrder::where('customer_id', $user->id)
+        ->where('status', 'pending')->latest()->first();
+        if($lastOrder){
+            if($lastOrder->negotiations()){
+                $negotiations = $lastOrder->negotiations()->with(['delivery' => function ($q){
+                    $q->select('id','full_name', 'phone', 'lng', 'lat');
+                }])->get();
+                return $this->handleResponse(
+                    true,
+                    "",
+                    [],
+                    [
+                        "negotiations" => $negotiations
+                    ],
+                    []
+                );
+            }
+            return $this->handleResponse(
+                false,
+                __("order.no negotiations yet"),
+                [],
+                [],
+                []
+            );
+        }
+        return $this->handleResponse(
+            false,
+            __("order.no ongoing"),
+            [],
+            [],
             []
         );
     }

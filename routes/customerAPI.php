@@ -29,4 +29,5 @@ Route::prefix('customer')->group(function () {
     //Negotiate
     Route::post('/order/propose', [NegotiateController::class, 'proposePrice'])->middleware('auth:sanctum,customer');
     Route::post('/order/respond-propose', [NegotiateController::class, 'respondToProposal'])->middleware('auth:sanctum,customer');
+    Route::get('/order/get-proposals', [NegotiateController::class, 'getProposals'])->middleware('auth:sanctum,customer');
 });

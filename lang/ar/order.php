@@ -12,5 +12,6 @@ return [
     "no ongoing" => "لا يوجد طلبات قيد التنفيذ",
     "status updated" => "تم تحديث حالة الطلب بنجاح",
     "no enough balance" => "رصيدك غير كاف",
+    "no negotiations yet" => "لم يتم تقديم عروض على طلبك حتى الآن",
 
 ];

@@ -47,6 +47,24 @@ class PlaceOrderController extends Controller
             }
 
             $user = $request->user();
+            //Check if customer placed an order and still active
+            $lastPlacedOrder = PlaceOrder::where('customer_id', $user->id)
+            ->where('status', 'pending')->latest()->first();
+            //Check if customer has an order accepted by a driver
+            $lastOrder = PlaceOrder::where('customer_id', $user->id)
+            ->whereHas('order', function ($query){
+                $query->whereNotIn('status', ['completed', 'cancelled_user', 'cancelled_delivery']);
+            })->with('order', 'order.delivery')->latest()->first();
+            //Customer can't place an order while he's on an active one
+            if($lastOrder ||  $lastPlacedOrder){
+                return $this->handleResponse(
+                    false,
+                    __('order.many at the moment'),
+                    [],
+                    [],
+                    []
+                );
+            }
             if($request->payment_method == "wallet"){
                 $wallet = $user->wallet()->first();
                 if($wallet->balance < $request->price){

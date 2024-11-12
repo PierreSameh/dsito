@@ -12,4 +12,5 @@ return [
     "no ongoing" => "you have no on-going orders",
     "status updated" => "order status updated successfully",
     "no enough balance" => "your balance is not enough",
+    "no negotiations yet" => "your order didn't get any negotiations yet",
 ];
