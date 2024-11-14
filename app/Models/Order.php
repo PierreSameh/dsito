@@ -22,4 +22,8 @@ class Order extends Model
     public function delivery(){
         return $this->belongsTo(Customer::class, 'delivery_id');
     }
+
+    public function cancel(){
+        return $this->hasOne(OrderCancel::class);
+    }
 }

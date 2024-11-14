@@ -13,5 +13,9 @@ return [
     "status updated" => "تم تحديث حالة الطلب بنجاح",
     "no enough balance" => "رصيدك غير كاف",
     "no negotiations yet" => "لم يتم تقديم عروض لك حتى الآن",
+    "cancel request sent" => "تم ارسال طلب الالغاء الخاص بك",
+    "request cancelled" => "تم الغاء الطلب",
+    "no cancel requests" => "لا يوجد طلبات الغاء",
+
 
 ];

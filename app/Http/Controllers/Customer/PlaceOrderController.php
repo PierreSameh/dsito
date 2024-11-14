@@ -144,4 +144,50 @@ class PlaceOrderController extends Controller
             );
         }
     }
+
+    public function getActive(Request $request){
+        $customer = $request->user();
+        $placeOrder = PlaceOrder::where('customer_id', $customer->id)->where('status', 'pending')->latest()->first();
+        if($placeOrder){
+            return $this->handleResponse(
+                true,
+                "",
+                [],
+                [
+                    "active_request" => $placeOrder
+                ],
+                []
+            );
+        }
+        return $this->handleResponse(
+            false,
+            __("order.no ongoing"),
+            [],
+            [],
+            []
+        );
+    }
+
+    public function cancel(Request $request){
+        $customer = $request->user();
+        $placeOrder = PlaceOrder::where('customer_id', $customer->id)->where('status', 'pending')->latest()->first();
+        if($placeOrder){
+            $placeOrder->status = "cancelled";
+            $placeOrder->save();
+            return $this->handleResponse(
+                true,
+                __("order.request cancelled"),
+                [],
+                [],
+                []
+            );
+        }
+        return $this->handleResponse(
+            false,
+            __("order.no ongoing"),
+            [],
+            [],
+            []
+        );
+    }
 }

@@ -13,4 +13,7 @@ return [
     "status updated" => "order status updated successfully",
     "no enough balance" => "your balance is not enough",
     "no negotiations yet" => "you didn't get any negotiations yet",
+    "cancel request sent" => "your cancel request is sent",
+    "request cancelled" => "your request has been cancelled",
+    "no cancel requests" => "no cancel requests",
 ];

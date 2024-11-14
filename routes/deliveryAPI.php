@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Delivery\AuthController;
+use App\Http\Controllers\Delivery\CancelOrderController;
 use App\Http\Controllers\Delivery\LocationController;
 use App\Http\Controllers\Delivery\NegotiateController;
 use App\Http\Controllers\Delivery\OrderController;
@@ -32,4 +33,6 @@ Route::prefix('delivery')->group(function () {
     Route::post('/order/respond-propose', [NegotiateController::class, 'respondToProposal'])->middleware('auth:sanctum,customer');
     Route::get('/order/get-proposals', [NegotiateController::class, 'getProposals'])->middleware('auth:sanctum,customer');
 
+    //Cancel Order
+    Route::get('/order/cancel-requests', [CancelOrderController::class, 'getRequests'])->middleware('auth:sanctum,customer');
 });
