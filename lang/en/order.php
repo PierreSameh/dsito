@@ -16,4 +16,7 @@ return [
     "cancel request sent" => "your cancel request is sent",
     "request cancelled" => "your request has been cancelled",
     "no cancel requests" => "no cancel requests",
+    "cancelled" => "the order has been cancelled",
+    "cancel rejected" => "request rejected",
+    "no cancel or active order" => "couldn't found the cancel request or the active order",
 ];

@@ -16,6 +16,7 @@ return [
     "cancel request sent" => "تم ارسال طلب الالغاء الخاص بك",
     "request cancelled" => "تم الغاء الطلب",
     "no cancel requests" => "لا يوجد طلبات الغاء",
-
-
+    "cancelled" => "تم الغاء الطلب",
+    "cancel rejected" => "تم رفض طلب الالغاء",
+    "no cancel or active order" => "تعذر العثور على طلب الالغاء او العملية الحالية",
 ];

@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Delivery;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use App\Models\OrderCancel;
+use App\Models\Wallet;
 use App\Traits\HandleResponseTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class CancelOrderController extends Controller
 {
@@ -31,6 +34,64 @@ class CancelOrderController extends Controller
         return $this->handleResponse(
             false,
             __("order.no cancel requests"),
+            [],
+            [],
+            []
+        );
+    }
+
+    public function respond(Request $request){
+        $validator = Validator::make($request->all(), [
+            "cancel_request_id" => "required|numeric|exists:order_cancels,id",
+            'status' => 'required|in:accepted,rejected',
+        ]);
+
+        if($validator->fails()){
+            return $this->handleResponse(false, "", [$validator->errors()->first()],[],[]);
+        }
+        $cancelRequest = OrderCancel::where('id', $request->cancel_request_id)->where('status', 'pending')->first();
+        if ($cancelRequest){
+            $order = Order::where("id", $cancelRequest->order_id)->whereNotIn('status', ['completed', 'cancelled_user', 'cancelled_delivery'])->first();
+            if($order){
+            if($request->status == "accepted"){
+                //Cancel Order
+                $order->status = "cancelled_user";
+                $order->save();
+                //Set Cancel Request Status
+                $cancelRequest->status = "accepted";
+                $cancelRequest->save();
+                if($order->placeOrder->payment_method == "wallet" && $order->placeOrder->paid == 1){
+                    $wallet = Wallet::where('customer_id', $order->placeOrder->customer_id)->first();
+                    $wallet->balance += $order->price;
+                    $wallet->save();
+                }
+                return $this->handleResponse(
+                    true,
+                    __("order.cancelled"),
+                    [],
+                    [],
+                    []
+                );
+            } else {
+                // Reminder: Send Notification to user
+
+                //Set Request Rejected
+                $cancelRequest->status = "rejected";
+                $cancelRequest->save();
+
+                return $this->handleResponse(
+                    true,
+                    __("order.cancel rejected"),
+                    [],
+                    [],
+                    []
+                );
+            }
+            }
+        }
+        return $this->handleResponse(
+            false,
+            __("order.no cancel or active order"),
             [],
             [],
             []
