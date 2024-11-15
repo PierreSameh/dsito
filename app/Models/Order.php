@@ -10,7 +10,8 @@ class Order extends Model
         "place_order_id",
         "delivery_id",
         "price",
-        "rate",
+        "rate_delivery",
+        "rate_customer",
         "status",
         "delivery_time"
     ];

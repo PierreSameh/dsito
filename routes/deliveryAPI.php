@@ -38,4 +38,7 @@ Route::prefix('delivery')->group(function () {
     Route::post('/order/cancel/respond', [CancelOrderController::class, 'respond'])->middleware('auth:sanctum,customer');
     Route::post("/order/cancel-request", [CancelOrderController::class, "sendRequest"])->middleware('auth:sanctum,customer');
 
+    //Rate Order
+    Route::post('/order/rate', [OrderController::class, 'rate'])->middleware('auth:sanctum,customer');
+
 });

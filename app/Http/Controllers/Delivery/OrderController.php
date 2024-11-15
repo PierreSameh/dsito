@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Delivery;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
@@ -247,4 +248,48 @@ class OrderController extends Controller
         );
     }
 
+    public function rate(Request $request){
+        $validator = Validator::make($request->all(), [
+            "rate" => "required|in:1,2,3,4,5",
+            "order_id" => "required|exists:orders,id"
+        ]);
+
+        if($validator->fails()){
+            return $this->handleResponse(false, "", [$validator->errors()->first()],[],[]);
+        }
+
+        $order = Order::where('id', $request->order_id)->where('status', 'completed')->first();
+
+        if($order){
+            $order->rate_customer = $request->rate;
+            $order->save();
+            $customer = Customer::findOrFail($order->placeOrder->customer_id);
+            $averageRating = Order::whereHas('placeOrder', function ($query) use($customer){
+                $query->where('customer_id', $customer->id);
+            })
+                 ->whereNotNull('rate_customer') // Only include orders that have been rated
+                 ->avg('rate_customer');
+         
+                // Update the driver's rate column with the average rating
+                $customer->customer_rate = $averageRating ?? 0; // Set 0 if no ratings exist
+                $customer->save();
+            
+            return $this->handleResponse(
+                true,
+                __("order.rate sent"),
+                [],
+                [
+                    "order" => $order
+                ],
+                []
+            );
+        }
+        return $this->handleResponse(
+            false,
+            __("order.can't rate this order"),
+            [],
+            [],
+            ["العميل ميقدرش يقيم الطلبات غير المكتملة (ميقدرش يقيم طلب ملغي او قيد التنفيذ)"]
+        );
+    }
 }

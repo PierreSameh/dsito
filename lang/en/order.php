@@ -19,4 +19,7 @@ return [
     "cancelled" => "the order has been cancelled",
     "cancel rejected" => "request rejected",
     "no cancel or active order" => "couldn't found the cancel request or the active order",
+    "rate sent" => "Your rating has been received, thank you for helping to improve the service",
+    "can't rate this order" => "This order cannot be rated",
+
 ];
