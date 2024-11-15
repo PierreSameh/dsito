@@ -97,4 +97,39 @@ class CancelOrderController extends Controller
             []
         );
     }
+
+    public function sendRequest(Request $request){
+        $validator = Validator::make($request->all(), [
+            "order_id" => "required|numeric|exists:orders,id",
+            "reason" => "required|string|max:1000"
+        ]);
+
+        if($validator->fails()){
+            return $this->handleResponse(false, "", [$validator->errors()->first()],[],[]);
+        }
+
+        $delivery = $request->user();
+        $order = Order::where('id', $request->order_id)->whereNotIn('status', ['completed', 'cancelled_user', 'cancelled_delivery'])->first();
+        if($order){
+        $cancel = OrderCancel::create([
+            "order_id" => $request->order_id,
+            "delivery_id" => $delivery->id,
+            "reason" => $request->reason
+        ]);
+        return $this->handleResponse(
+            true,
+            __("order.cancel request sent"),
+            [],
+            [],
+            []
+        );
+        }
+        return $this->handleResponse(
+            false,
+            __('order.not available'),
+            [],
+            [],
+            []
+        );
+    }
 }

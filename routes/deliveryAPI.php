@@ -34,6 +34,8 @@ Route::prefix('delivery')->group(function () {
     Route::get('/order/get-proposals', [NegotiateController::class, 'getProposals'])->middleware('auth:sanctum,customer');
 
     //Cancel Order
-    Route::get('/order/cancel-requests', [CancelOrderController::class, 'getRequests'])->middleware('auth:sanctum,customer');
+    Route::get('/order/cancel-requests/get', [CancelOrderController::class, 'getRequests'])->middleware('auth:sanctum,customer');
     Route::post('/order/cancel/respond', [CancelOrderController::class, 'respond'])->middleware('auth:sanctum,customer');
+    Route::post("/order/cancel-request", [CancelOrderController::class, "sendRequest"])->middleware('auth:sanctum,customer');
+
 });
