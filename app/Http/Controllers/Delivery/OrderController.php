@@ -30,7 +30,7 @@ class OrderController extends Controller
         ->having('distance', '<=', $distanceLimit)
         ->where('status', 'pending')
         ->with(['customer' => function ($query) {
-            $query->select('id','first_name', 'last_name','username', 'phone');
+            $query->select('id','first_name', 'last_name','username', 'phone', 'customer_rate');
         }])->orderBy('distance')
         ->get();
 
@@ -117,7 +117,7 @@ class OrderController extends Controller
         $lastOrder = $delivery->orders()
         ->whereNotIn('status', ['completed', 'cancelled_user', 'cancelled_delivery'])
         ->with(['placeOrder.customer' => function ($query) {
-            $query->select('id','first_name', 'last_name','username', 'phone');
+            $query->select('id','first_name', 'last_name','username', 'phone', 'customer_rate');
         }])
         ->latest()->first();
         if($lastOrder){
@@ -134,6 +134,36 @@ class OrderController extends Controller
         return $this->handleResponse(
             true,
             __("order.no ongoing"),
+            [],
+            [],
+            []
+        );
+    }
+
+    public function getLast(Request $request){
+        $delivery = $request->user();
+        $lastOrder = $delivery->orders()
+        ->where('status', 'completed')
+        ->with(['placeOrder.customer' => function ($query) {
+            $query->select('id','first_name', 'last_name','username', 'phone', 'customer_rate');
+        }])
+        ->latest()->first();
+        if($lastOrder){
+            return $this->handleResponse(
+                true,
+                "",
+                [],
+                [
+                    "last_order" => $lastOrder
+                ],
+                [
+                    "اخر طلب مكتمل عشان تاخد منه رقم الاوردر للتقييم"
+                ]
+            );
+        }
+        return $this->handleResponse(
+            false,
+            __("order.last not completed"),
             [],
             [],
             []

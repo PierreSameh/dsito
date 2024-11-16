@@ -28,6 +28,7 @@ Route::prefix('customer')->group(function () {
 
     //Order
     Route::get('/order/active', [OrderController::class, 'getActive'])->middleware("auth:sanctum,customer");
+    Route::get('/order/get/last-completed', [OrderController::class, 'getLast'])->middleware('auth:sanctum,customer');
 
     //Negotiate
     Route::post('/order/propose', [NegotiateController::class, 'proposePrice'])->middleware('auth:sanctum,customer');

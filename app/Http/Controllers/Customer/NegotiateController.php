@@ -140,7 +140,7 @@ class NegotiateController extends Controller
         if($lastOrder){
             if($lastOrder->negotiations()){
                 $negotiations = $lastOrder->negotiations()->with(['delivery' => function ($q){
-                    $q->select('id','full_name', 'phone', 'lng', 'lat');
+                    $q->select('id','full_name', 'phone', 'lng', 'lat', 'delivery_rate');
                 }])->get();
                 return $this->handleResponse(
                     true,

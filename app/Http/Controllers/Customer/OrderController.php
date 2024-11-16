@@ -20,7 +20,9 @@ class OrderController extends Controller
         ->whereHas('order', function ($query){
             $query->whereNotIn('status', ['completed', 'cancelled_user', 'cancelled_delivery']);
 
-        })->with('order', 'order.delivery')->latest()->first();
+        })->with(['order', 'order.delivery' => function ($q){
+            $q->select( "id","full_name", "phone", "delivery_rate","lng", "lat",);
+        }])->latest()->first();
         if($lastOrder){
             return $this->handleResponse(
                 true,
@@ -35,6 +37,37 @@ class OrderController extends Controller
         return $this->handleResponse(
             true,
             __("order.no ongoing"),
+            [],
+            [],
+            []
+        );
+    }
+
+    public function getLast(Request $request){
+        $user = $request->user();
+        $lastOrder = PlaceOrder::where('customer_id', $user->id)
+        ->whereHas('order', function ($query){
+            $query->where('status', 'completed');
+
+        })->with(['order', 'order.delivery' => function ($q){
+            $q->select( "id","full_name", "phone", "delivery_rate","lng", "lat",);
+        }])->latest()->first();
+        if($lastOrder){
+            return $this->handleResponse(
+                true,
+                "",
+                [],
+                [
+                    "last_order" => $lastOrder->order
+                ],
+                [
+                    "اخر طلب مكتمل عشان تاخد منه رقم الاوردر للتقييم"
+                ]
+            );
+        }
+        return $this->handleResponse(
+            false,
+            __("order.last not completed"),
             [],
             [],
             []

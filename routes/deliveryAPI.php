@@ -20,6 +20,7 @@ Route::prefix('delivery')->group(function () {
     Route::get('/nearby-orders', [OrderController::class, 'nearbyOrders'])->middleware('auth:sanctum,customer');
     Route::post('/order/accept', [OrderController::class, 'accept'])->middleware("auth:sanctum,customer");
     Route::get('/order/active', [OrderController::class, 'getActive'])->middleware("auth:sanctum,customer");
+    Route::get('/order/get/last-completed', [OrderController::class, 'getLast'])->middleware('auth:sanctum,customer');
 
     //Order Status
     Route::post("/order/status/first-point", [OrderController::class, 'setFirstPoint'])->middleware('auth:sanctum,customer');

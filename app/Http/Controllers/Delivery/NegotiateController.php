@@ -62,7 +62,7 @@ class NegotiateController extends Controller
         $placeOrder = PlaceOrder::findOrFail($negotiation->place_order_id);
  
         $delivery = $request->user();
-        if ($negotiation->delivery_id == $delivery->id){
+        if ($negotiation->delivery_id == $delivery->id && !$negotiation->customer_id){
             return $this->handleResponse(
                 false,
                 __("order.can not respond self"),
@@ -116,7 +116,7 @@ class NegotiateController extends Controller
             $query->where('status', 'pending');
         })->orderBy('created_at', 'desc')
         ->with(['placeOrder','customer' => function ($q){
-            $q->select('id', 'first_name', 'last_name', 'phone');
+            $q->select('id', 'first_name', 'last_name', 'phone', 'customer_rate');
         }])->get();
         if(count($negotiations) > 0){
             return $this->handleResponse(
