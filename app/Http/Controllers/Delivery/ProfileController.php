@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Customer;
+namespace App\Http\Controllers\Delivery;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
@@ -14,7 +14,7 @@ class ProfileController extends Controller
 
     public function get(Request $request){
         $user = Customer::where('id', $request->user()->id)
-        ->select("id", "first_name", "last_name", "username", "phone", "customer_rate", "picture","delivery", "verified")
+        ->select("id", "full_name", "username", "phone", "delivery_rate", "picture", "delivery", "verified")
         ->first();
         return $this->handleResponse(
             true,
@@ -30,8 +30,7 @@ class ProfileController extends Controller
     public function edit(Request $request){
         try {
             $validator = Validator::make($request->all(), [
-                'first_name' => ['nullable','string','max:255'],
-                'last_name' => ['nullable','string','max:255'],
+                "full_name" => ['nullable', "string", 'regex:/^([A-Za-zÀ-ÖØ-öø-ÿ]+(?:\s+[A-Za-zÀ-ÖØ-öø-ÿ]+){3})$/'],
                 'phone' => ['nullable','string','unique:customers,phone'],
                 'picture'=> 'nullable|image|mimes:jpeg,png,jpg,gif'
             ]);
@@ -47,11 +46,8 @@ class ProfileController extends Controller
                 );
             }
             $user = $request->user();
-            if($request->first_name){
-            $user->first_name = $request->first_name;
-            }
-            if($request->last_name){
-            $user->last_name = $request->last_name;
+            if($request->full_name){
+            $user->full_name = $request->full_name;
             }
             if($request->phone){
             $user->phone = $request->phone;

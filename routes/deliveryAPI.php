@@ -5,6 +5,7 @@ use App\Http\Controllers\Delivery\CancelOrderController;
 use App\Http\Controllers\Delivery\LocationController;
 use App\Http\Controllers\Delivery\NegotiateController;
 use App\Http\Controllers\Delivery\OrderController;
+use App\Http\Controllers\Delivery\ProfileController;
 use App\Http\Middleware\CheckDeliveryAccess;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -42,5 +43,9 @@ Route::prefix('delivery')->group(function () {
 
     //Rate Order
     Route::post('/order/rate', [OrderController::class, 'rate']);
+
+    //Profile
+    Route::get('/profile/get', [ProfileController::class, 'get']);
+    Route::post('/profile/edit', [ProfileController::class, 'edit']);
     });
 });
