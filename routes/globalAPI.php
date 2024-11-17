@@ -19,3 +19,5 @@ Route::post('/logout', [AuthController::class, "logout"])->middleware('auth:sanc
 //Wallet 
 Route::get('/wallet/get', [WalletController::class, 'get'])->middleware('auth:sanctum,customer');
 Route::post('/wallet/deposit', [WalletController::class, 'deposit'])->middleware('auth:sanctum,customer');
+Route::get('/wallet/transfer/get-customer', [WalletController::class, 'getCustomerByPhone']);
+Route::post('/wallet/transfer/send', [WalletController::class, 'transfer'])->middleware('auth:sanctum,customer');

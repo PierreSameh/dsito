@@ -18,4 +18,12 @@ class Wallet extends Model
     public function recharges(){
         return $this->hasMany(WalletRecharge::class, 'wallet_id');
     }
+
+    public function sender(){
+        return $this->hasMany(Transaction::class, 'sender');
+    }
+
+    public function receiver(){
+        return $this->hasMany(Transaction::class, 'receiver');
+    }
 }

@@ -59,7 +59,7 @@ class AuthController extends Controller
         }
         $explode = explode(' ', $request->full_name);
         $firstName = $explode[0];
-        $lastName = $explode[3];
+        $lastName = $explode[1];
         $user = Customer::create([
             'full_name' => $request->full_name,
             'first_name' => $firstName,
