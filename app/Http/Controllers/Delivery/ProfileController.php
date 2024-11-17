@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Delivery;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Models\Order;
 use App\Traits\HandleResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -16,6 +17,25 @@ class ProfileController extends Controller
         $user = Customer::where('id', $request->user()->id)
         ->select("id", "full_name", "username", "phone", "delivery_rate", "picture", "delivery", "verified")
         ->first();
+
+        $orders = $user->orders()->get();
+
+        // Count the completed and canceled orders
+        $completed = $orders->where('status', 'completed')->count();
+        $cancelled = $orders->whereIn('status', ['cancelled_customer', 'cancelled_delivery'])->count();
+
+        // Calculate the total number of orders
+        $totalOrders = $orders->count();
+
+        // Avoid division by zero
+        $completedPercentage = $totalOrders > 0 ? ($completed / $totalOrders) * 100 : 0;
+        $cancelledPercentage = $totalOrders > 0 ? ($cancelled / $totalOrders) * 100 : 0;
+
+        // Store the data in the user object or return as needed
+        $user->completed_orders = $completed;
+        $user->cancelled_orders = $cancelled;
+        $user->completed_percentage = (float) number_format($completedPercentage, 2);
+        $user->cancelled_percentage = (float) number_format($cancelledPercentage, 2);
         return $this->handleResponse(
             true,
             "",

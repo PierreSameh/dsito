@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Global\AuthController;
 use App\Http\Controllers\Global\NegotiateController;
+use App\Http\Controllers\Global\WalletController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,3 +16,6 @@ Route::post('/forgot-password-set', [AuthController::class,'forgetPassword']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, "logout"])->middleware('auth:sanctum,customer');
 
+//Wallet 
+Route::get('/wallet/get', [WalletController::class, 'get'])->middleware('auth:sanctum,customer');
+Route::post('/wallet/deposit', [WalletController::class, 'deposit'])->middleware('auth:sanctum,customer');
