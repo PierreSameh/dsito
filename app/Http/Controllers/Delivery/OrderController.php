@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Traits\HandleResponseTrait;
 use Illuminate\Support\Facades\Validator;
 use App\Models\PlaceOrder;
+use App\Models\Transaction;
 use Carbon\Carbon;
 
 class OrderController extends Controller
@@ -90,6 +91,14 @@ class OrderController extends Controller
                 $wallet->save();
                 $placeOrder->paid = 1;
                 $placeOrder->save();
+
+                $receiver = $delivery->wallet()->first();
+                Transaction::create([
+                    "sender" => $wallet->id,
+                    "receiver" => $receiver->id,
+                    "amount" => $order->price,
+                    "type" => "pay"
+                ]);
             }
             $order->load("placeOrder");
             return $this->handleResponse(
@@ -257,6 +266,9 @@ class OrderController extends Controller
             if($placeOrder->payment_method == "wallet"){
                 $wallet->balance += $lastOrder->price;
                 $wallet->save();
+                $lastTransaction = $wallet->receiver()->where('type', 'pay')->latest()->first();
+                $lastTransaction->status = "completed";
+                $lastTransaction->save();
             }
             $lastOrder->status = "completed";
             $lastOrder->delivery_time = Carbon::now(); 

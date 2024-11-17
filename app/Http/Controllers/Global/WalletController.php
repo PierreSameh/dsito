@@ -18,7 +18,7 @@ class WalletController extends Controller
     public function get(Request $request){
         $user = $request->user();
         $wallet = Wallet::where('customer_id', $user->id)
-        ->with('recharges')
+        ->with('recharges', 'sender', 'receiver')
         ->select('id', 'customer_id', 'balance')
         ->first();
         return $this->handleResponse(
@@ -28,7 +28,10 @@ class WalletController extends Controller
             [
                 "wallet" => $wallet
             ],
-            []
+            [
+                "sender" => "sent money transactions",
+                "receiver" => "received money transactions"
+            ]
         );
     }
 

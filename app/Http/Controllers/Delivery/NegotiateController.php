@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderNegotiation;
 use App\Models\PlaceOrder;
+use App\Models\Transaction;
 use App\Traits\HandleResponseTrait;
 use Illuminate\Support\Facades\Validator;
 
@@ -80,6 +81,13 @@ class NegotiateController extends Controller
                 $wallet = Wallet::where("customer_id", $placeOrder->customer_id)->first();
                 $wallet->balance -=  $negotiation->proposed_price;
                 $wallet->save();
+                $receiver = $delivery->wallet()->first();
+                Transaction::create([
+                    "sender" => $wallet->id,
+                    "receiver" => $receiver->id,
+                    "amount" => $negotiation->proposed_price,
+                    "type" => "pay"
+                ]);
             }
             $placeOrder->update(["status" => "accepted"]);
             $order = Order::create([
@@ -87,6 +95,7 @@ class NegotiateController extends Controller
                 "delivery_id" => $delivery->id,
                 "price" => $negotiation->proposed_price
             ]);
+
 
             return $this->handleResponse(
                 true,
