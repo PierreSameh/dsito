@@ -18,6 +18,12 @@ Route::post('/logout', [AuthController::class, "logout"])->middleware('auth:sanc
 
 //Wallet 
 Route::get('/wallet/get', [WalletController::class, 'get'])->middleware('auth:sanctum,customer');
+Route::get('/wallet/get-recharges/all', [WalletController::class, 'getRechargesAll'])->middleware('auth:sanctum,customer');
+Route::get('/wallet/get-recharges/paginate', [WalletController::class, 'getRechargesPaginate'])->middleware('auth:sanctum,customer');
+Route::get('/wallet/get-sent/all', [WalletController::class, 'getSenderAll'])->middleware('auth:sanctum,customer');
+Route::get('/wallet/get-sent/paginate', [WalletController::class, 'getSenderPaginate'])->middleware('auth:sanctum,customer');
+Route::get('/wallet/get-received/all', [WalletController::class, 'getReceiverAll'])->middleware('auth:sanctum,customer');
+Route::get('/wallet/get-received/paginate', [WalletController::class, 'getReceiverPaginate'])->middleware('auth:sanctum,customer');
 Route::post('/wallet/deposit', [WalletController::class, 'deposit'])->middleware('auth:sanctum,customer');
 Route::get('/wallet/transfer/get-customer', [WalletController::class, 'getCustomerByPhone']);
 Route::post('/wallet/transfer/send', [WalletController::class, 'transfer'])->middleware('auth:sanctum,customer');

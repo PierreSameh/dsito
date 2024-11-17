@@ -18,7 +18,6 @@ class WalletController extends Controller
     public function get(Request $request){
         $user = $request->user();
         $wallet = Wallet::where('customer_id', $user->id)
-        ->with('recharges', 'sender', 'receiver')
         ->select('id', 'customer_id', 'balance')
         ->first();
         return $this->handleResponse(
@@ -28,10 +27,97 @@ class WalletController extends Controller
             [
                 "wallet" => $wallet
             ],
+            []
+        );
+    }
+
+    public function getRechargesAll(Request $request){
+        $user = $request->user();
+        $wallet = $user->wallet()->first();
+        $recharges = $wallet->recharges()->get();
+        return $this->handleResponse(
+            true,
+            "",
+            [],
             [
-                "sender" => "sent money transactions",
-                "receiver" => "received money transactions"
-            ]
+                "recharge_requests" => $recharges
+            ],
+            []
+        );
+    }
+    public function getRechargesPaginate(Request $request){
+        $user = $request->user();
+        $perPage = $request->per_page ?: 10; 
+        $wallet = $user->wallet()->first();
+        $recharges = $wallet->recharges()->paginate($perPage);
+        return $this->handleResponse(
+            true,
+            "",
+            [],
+            [
+                "recharge_requests" => $recharges
+            ],
+            []
+        );
+    }
+
+    public function getSenderAll(Request $request){
+        $user = $request->user();
+        $wallet = $user->wallet()->first();
+        $sent = $wallet->sender()->get();
+        return $this->handleResponse(
+            true,
+            "",
+            [],
+            [
+                "sent_money" => $sent
+            ],
+            []
+        );
+    }
+    public function getSenderPaginate(Request $request){
+        $user = $request->user();
+        $perPage = $request->per_page ?: 10; 
+        $wallet = $user->wallet()->first();
+        $sent = $wallet->sender()->paginate($perPage);
+        return $this->handleResponse(
+            true,
+            "",
+            [],
+            [
+                "sent_money" => $sent
+            ],
+            []
+        );
+    }
+
+    public function getReceiverAll(Request $request){
+        $user = $request->user();
+        $wallet = $user->wallet()->first();
+        $received = $wallet->receiver()->get();
+        return $this->handleResponse(
+            true,
+            "",
+            [],
+            [
+                "received_money" => $received
+            ],
+            []
+        );
+    }
+    public function getReceiverPaginate(Request $request){
+        $user = $request->user();
+        $perPage = $request->per_page ?: 10; 
+        $wallet = $user->wallet()->first();
+        $receiver = $wallet->receiver()->paginate($perPage);
+        return $this->handleResponse(
+            true,
+            "",
+            [],
+            [
+                "received_money" => $receiver
+            ],
+            []
         );
     }
 
