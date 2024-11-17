@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Delivery\ActivitiesController;
 use App\Http\Controllers\Delivery\AuthController;
 use App\Http\Controllers\Delivery\CancelOrderController;
 use App\Http\Controllers\Delivery\LocationController;
@@ -47,5 +48,11 @@ Route::prefix('delivery')->group(function () {
     //Profile
     Route::get('/profile/get', [ProfileController::class, 'get']);
     Route::post('/profile/edit', [ProfileController::class, 'edit']);
+
+    //Activities
+    Route::get('/activities/completed-all', [ActivitiesController::class, 'getCompletedAll']);
+    Route::get('/activities/completed-paginate', [ActivitiesController::class, 'getCompletedPaginate']);
+    Route::get('/activities/cancelled-all', [ActivitiesController::class, 'getCancelledAll']);
+    Route::get('/activities/cancelled-paginate', [ActivitiesController::class, 'getCancelledPaginate']);
     });
 });

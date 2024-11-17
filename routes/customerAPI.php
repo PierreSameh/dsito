@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Customer\ActivitiesController;
 use App\Http\Controllers\Customer\FavoriteController;
 use App\Http\Controllers\Customer\PlaceOrderController;
 use App\Http\Controllers\Customer\NegotiateController;
@@ -48,5 +49,11 @@ Route::prefix('customer')->group(function () {
     //Profile
     Route::get('/profile/get', [ProfileController::class, 'get']);
     Route::post('/profile/edit', [ProfileController::class, 'edit']);
+
+    //Activities
+    Route::get('/activities/completed-all', [ActivitiesController::class, 'getCompletedAll']);
+    Route::get('/activities/completed-paginate', [ActivitiesController::class, 'getCompletedPaginate']);
+    Route::get('/activities/cancelled-all', [ActivitiesController::class, 'getCancelledAll']);
+    Route::get('/activities/cancelled-paginate', [ActivitiesController::class, 'getCancelledPaginate']);
     });
 });

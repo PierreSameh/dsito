@@ -22,7 +22,7 @@ class ProfileController extends Controller
 
         // Count the completed and canceled orders
         $completed = $orders->where('status', 'completed')->count();
-        $cancelled = $orders->whereIn('status', ['cancelled_customer', 'cancelled_delivery'])->count();
+        $cancelled = $orders->whereIn('status', ['cancelled_user', 'cancelled_delivery'])->count();
 
         // Calculate the total number of orders
         $totalOrders = $orders->count();
