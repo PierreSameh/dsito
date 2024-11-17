@@ -64,6 +64,10 @@ class CancelOrderController extends Controller
                     $wallet = Wallet::where('customer_id', $order->placeOrder->customer_id)->first();
                     $wallet->balance += $order->price;
                     $wallet->save();
+
+                    $transaction = $wallet->sender()->where('type', 'pay')->latest()->first();
+                    $transaction->status = "failed";
+                    $transaction->save();
                 }
                 return $this->handleResponse(
                     true,
