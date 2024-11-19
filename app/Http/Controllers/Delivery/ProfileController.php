@@ -23,6 +23,7 @@ class ProfileController extends Controller
         // Count the completed and canceled orders
         $completed = $orders->where('status', 'completed')->count();
         $cancelled = $orders->whereIn('status', ['cancelled_user', 'cancelled_delivery'])->count();
+        $onGoing = $orders->whereNotIn('status', ['cancelled_user', 'cancelled_delivery', 'completed'])->count();
 
         // Calculate the total number of orders
         $totalOrders = $orders->count();
@@ -30,12 +31,16 @@ class ProfileController extends Controller
         // Avoid division by zero
         $completedPercentage = $totalOrders > 0 ? ($completed / $totalOrders) * 100 : 0;
         $cancelledPercentage = $totalOrders > 0 ? ($cancelled / $totalOrders) * 100 : 0;
+        $onGoingPercentage = $totalOrders > 0 ? ($onGoing / $totalOrders) * 100 : 0; 
 
         // Store the data in the user object or return as needed
         $user->completed_orders = $completed;
         $user->cancelled_orders = $cancelled;
+        $user->on_going_orders = $onGoing;
         $user->completed_percentage = (float) number_format($completedPercentage, 2);
         $user->cancelled_percentage = (float) number_format($cancelledPercentage, 2);
+        $user->on_going_percentage = (float) number_format($onGoingPercentage, 2);
+        $user->total_orders = $totalOrders;
         return $this->handleResponse(
             true,
             "",

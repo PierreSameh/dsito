@@ -16,13 +16,25 @@ Route::prefix('delivery')->group(function () {
     //Auth
     Route::post('/register', [AuthController::class, 'register']);
 
-    Route::middleware(['auth:sanctum,customer', CheckDeliveryAccess::class, DeliveryStatus::class])->group(function () {
+    Route::middleware(['auth:sanctum,customer', CheckDeliveryAccess::class])->group(function () {
+        Route::middleware(DeliveryStatus::class)->group(
+            function (){
+                //Orders
+                Route::post('/order/accept', [OrderController::class, 'accept']);
+
+                //Negotiate
+                Route::post('/order/propose', [NegotiateController::class, 'proposePrice']);
+                Route::post('/order/respond-propose', [NegotiateController::class, 'respondToProposal']);
+                Route::get('/order/get-proposals', [NegotiateController::class, 'getProposals']);
+
+                //Rate Order
+                Route::post('/order/rate', [OrderController::class, 'rate']);
+            });
     //Location
     Route::post('/set-location', [LocationController::class, 'setDeliveryLocation']);
 
     //Orders
     Route::get('/nearby-orders', [OrderController::class, 'nearbyOrders']);
-    Route::post('/order/accept', [OrderController::class, 'accept']);
     Route::get('/order/active', [OrderController::class, 'getActive']);
     Route::get('/order/get/last-completed', [OrderController::class, 'getLast']);
 
@@ -33,18 +45,10 @@ Route::prefix('delivery')->group(function () {
     Route::post("/order/status/completed", [OrderController::class, 'setCompleted']);
 
 
-    //Negotiate
-    Route::post('/order/propose', [NegotiateController::class, 'proposePrice']);
-    Route::post('/order/respond-propose', [NegotiateController::class, 'respondToProposal']);
-    Route::get('/order/get-proposals', [NegotiateController::class, 'getProposals']);
-
     //Cancel Order
     Route::get('/order/cancel-requests/get', [CancelOrderController::class, 'getRequests']);
     Route::post('/order/cancel/respond', [CancelOrderController::class, 'respond']);
     Route::post("/order/cancel-request", [CancelOrderController::class, "sendRequest"]);
-
-    //Rate Order
-    Route::post('/order/rate', [OrderController::class, 'rate']);
 
     //Profile
     Route::get('/profile/get', [ProfileController::class, 'get']);

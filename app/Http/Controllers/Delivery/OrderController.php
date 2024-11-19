@@ -30,6 +30,7 @@ class OrderController extends Controller
         )) AS distance", [$delivery->lat, $delivery->lng, $delivery->lat])
         ->having('distance', '<=', $distanceLimit)
         ->where('status', 'pending')
+        ->whereNot('customer_id', $delivery->id)
         ->with(['customer' => function ($query) {
             $query->select('id','first_name', 'last_name','username', 'phone', 'customer_rate');
         }])->orderBy('distance')

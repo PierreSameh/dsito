@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Customer\AuthController;
 use App\Http\Controllers\Customer\CancelOrderController;
+use App\Http\Controllers\Customer\ChangeModeController;
 use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\Customer\ProfileController;
 
@@ -55,5 +56,8 @@ Route::prefix('customer')->group(function () {
     Route::get('/activities/completed-paginate', [ActivitiesController::class, 'getCompletedPaginate']);
     Route::get('/activities/cancelled-all', [ActivitiesController::class, 'getCancelledAll']);
     Route::get('/activities/cancelled-paginate', [ActivitiesController::class, 'getCancelledPaginate']);
+
+    //Change Mode
+    Route::post('/change/delivery-docs', [ChangeModeController::class, 'setDocs']);
     });
 });
