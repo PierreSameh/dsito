@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Global\AuthController;
+use App\Http\Controllers\Global\MiscController;
 use App\Http\Controllers\Global\NegotiateController;
 use App\Http\Controllers\Global\WalletController;
 use Illuminate\Http\Request;
@@ -27,3 +28,9 @@ Route::get('/wallet/get-received/paginate', [WalletController::class, 'getReceiv
 Route::post('/wallet/deposit', [WalletController::class, 'deposit'])->middleware('auth:sanctum,customer');
 Route::get('/wallet/transfer/get-customer', [WalletController::class, 'getCustomerByPhone']);
 Route::post('/wallet/transfer/send', [WalletController::class, 'transfer'])->middleware('auth:sanctum,customer');
+
+//MISC pages
+Route::get('/pages/about', [MiscController::class, 'about']);
+Route::get('/pages/privacy-and-terms', [MiscController::class, 'privacyTerms']);
+Route::get('/pages/faq', [MiscController::class, 'faq']);
+Route::get('/pages/contact-us', [MiscController::class, 'contact']);
