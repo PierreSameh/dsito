@@ -8,6 +8,7 @@ use App\Http\Controllers\Delivery\NegotiateController;
 use App\Http\Controllers\Delivery\OrderController;
 use App\Http\Controllers\Delivery\ProfileController;
 use App\Http\Middleware\CheckDeliveryAccess;
+use App\Http\Middleware\DeliveryStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,7 +16,7 @@ Route::prefix('delivery')->group(function () {
     //Auth
     Route::post('/register', [AuthController::class, 'register']);
 
-    Route::middleware(['auth:sanctum,customer', CheckDeliveryAccess::class])->group(function () {
+    Route::middleware(['auth:sanctum,customer', CheckDeliveryAccess::class, DeliveryStatus::class])->group(function () {
     //Location
     Route::post('/set-location', [LocationController::class, 'setDeliveryLocation']);
 

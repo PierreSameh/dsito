@@ -73,6 +73,7 @@ class AuthController extends Controller
             'phone'=> $request->phone,
             'password' => Hash::make($request->password),
             "delivery" => 1,
+            "delivery_status" => "waiting",
             // 'fcm_token'=> $request->fcm_token
         ]);
 

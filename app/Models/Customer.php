@@ -27,6 +27,7 @@ class Customer extends Authenticatable
         "delivery_rate",
         "customer_rate",
         "fcm_token",
+        "delivery_status",
         "picture",
         "national_id",
         "id_front",
