@@ -21,6 +21,7 @@ class Customer extends Authenticatable
         "phone",
         "email",
         "password",
+        "pin",
         "delivery",
         "lng",
         "lat",

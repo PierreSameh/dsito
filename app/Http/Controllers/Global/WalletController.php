@@ -9,11 +9,58 @@ use App\Models\Wallet;
 use App\Models\WalletRecharge;
 use App\Traits\HandleResponseTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class WalletController extends Controller
 {
     use HandleResponseTrait;
+
+    public function setPIN(Request $request){
+        try{
+        $validator = Validator::make($request->all(), [
+            "pin" => [
+                "required",
+                "numeric",
+                "digits:6",
+                "confirmed",
+                "regex:/^(?!.*(\d)\1{5})(?!123456|234567|345678|456789|567890|987654|876543|765432|654321|543210|111111|222222|333333|444444|555555|666666|777777|888888|999999|000000)\d{6}$/"
+                ]
+        ],[
+            "regex" => __("wallet.pin must complex")
+        ]);
+
+        if($validator->fails()){
+            return $this->handleResponse(false,"",[$validator->errors()->first()],[],
+            [
+                "مينفعش ترتيب ارقام او نفس الرقم 6 مرات"
+            ]);
+        }
+
+        $user = $request->user();
+
+        $user->pin = Hash::make($request->pin);
+        $user->save();
+
+        return $this->handleResponse(
+            true,
+            __("wallet.pin set"),
+            [],
+            [],
+            []
+        );
+        } catch (\Exception $e){
+            return $this->handleResponse(
+                false,
+                __("wallet.server error"),
+                [
+                    $e->getMessage()
+                ],
+                [],
+                []
+            );
+        }
+    }
 
     public function get(Request $request){
         $user = $request->user();
