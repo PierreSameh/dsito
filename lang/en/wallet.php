@@ -8,4 +8,5 @@ return [
     "no enough balance" => "your balance is not enough",
     "pin set" => "your PIN code is set successfully",
     "pin must complex" => "you must enter a complex pin",
+    "invalid pin" => "invalid PIN code",
 ];

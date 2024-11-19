@@ -243,6 +243,7 @@ class WalletController extends Controller
             $validator = Validator::make($request->all(), [
                 "phone" => "required|string|numeric|digits:11|exists:customers,phone",
                 "amount" => "required|numeric",
+                "pin" => "required|numeric|digits:6"
             ],[
                 "phone.exists" => __("wallet.phone not registered")
             ]);
@@ -252,6 +253,17 @@ class WalletController extends Controller
             }
 
             $user = $request->user();
+
+            if (!Hash::check($request->pin, $user->pin)) {
+                return $this->handleResponse(
+                    false,
+                    __("wallet.invalid pin"),
+                    [],
+                    [],
+                    []
+                );
+            }
+
             $sender = $user->wallet()->first();
             if($sender->balance < $request->amount){
                 return $this->handleResponse(

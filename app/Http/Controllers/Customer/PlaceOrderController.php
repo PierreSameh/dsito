@@ -8,6 +8,7 @@ use App\Models\PlaceOrder;
 use DanHarrin\LivewireRateLimiting\WithRateLimiting;
 use Illuminate\Http\Request;
 use App\Traits\HandleResponseTrait;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 class PlaceOrderController extends Controller
 {
@@ -26,7 +27,8 @@ class PlaceOrderController extends Controller
                 "lat_to" => "required_if:favorite_to,null",
                 "price" => "required|numeric",
                 "details" => "required|string|max:1000",
-                "payment_method" => "required|in:cash,wallet"
+                "payment_method" => "required|in:cash,wallet",
+                "pin" => "required_if:payment_method,wallet|numeric|digits:6"
             ],[
                 "numeric" => __('validation.numeric'),
                 "exists" => __('validation.exists'),
@@ -66,6 +68,15 @@ class PlaceOrderController extends Controller
                 );
             }
             if($request->payment_method == "wallet"){
+                if (!Hash::check($request->pin, $user->pin)) {
+                    return $this->handleResponse(
+                        false,
+                        __("wallet.invalid pin"),
+                        [],
+                        [],
+                        []
+                    );
+                }
                 $wallet = $user->wallet()->first();
                 if($wallet->balance < $request->price){
                     return $this->handleResponse(
