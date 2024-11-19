@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Traits\HandleResponseTrait;
 use Illuminate\Support\Facades\Validator;
 use App\Models\PlaceOrder;
+use App\Models\Setting;
 use App\Models\Transaction;
 use Carbon\Carbon;
 
@@ -19,7 +20,8 @@ class OrderController extends Controller
 
     public function nearbyOrders(Request $request){
         $delivery = $request->user();
-        $distanceLimit = 10;
+        $setting = Setting::firstOrFail();
+        $distanceLimit = $setting->delivery_coverage;
         $earthRadius = 6371; // Radius of Earth in kilometers
 
         $placeOrders = PlaceOrder::select('*')
@@ -257,6 +259,8 @@ class OrderController extends Controller
     }
     public function setCompleted(Request $request){
         $delivery = $request->user();
+        $setting = Setting::firstOrFail();
+
         $wallet = Wallet::where('customer_id', $delivery->id)->first();
         $lastOrder = $delivery->orders()
         ->whereNotIn('status', ['completed', 'cancelled_user', 'cancelled_delivery'])
@@ -274,6 +278,8 @@ class OrderController extends Controller
             $lastOrder->status = "completed";
             $lastOrder->delivery_time = Carbon::now(); 
             $lastOrder->save();
+            $wallet->balance -= $setting->company_share;
+            $wallet->save();
             return $this->handleResponse(
                 true,
                 __("order.status updated"),

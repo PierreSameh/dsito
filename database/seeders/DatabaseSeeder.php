@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
         // ]);
         $this->call([
             MiscSeeder::class,
+            SettingSeeder::class,
         ]);
     }
 }
