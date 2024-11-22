@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Global;
 
+use App\Traits\FcmNotificationTrait;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\Transaction;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Validator;
 
 class WalletController extends Controller
 {
-    use HandleResponseTrait;
+    use HandleResponseTrait, FcmNotificationTrait;
 
     public function setPIN(Request $request){
         try{
@@ -293,6 +294,21 @@ class WalletController extends Controller
             //Set transaction completed
             $transaction->status = "completed";
             $transaction->save();
+            //Send Notification after success
+            //Sender
+            $this->sendNotification(
+                $user->fcm_token,
+                "تم ارسال مبلغ " . $transaction->amount . " جنيه بنجاح",
+                "لقد قمت بارسال مبلغ " . $transaction->amount . " جنيه بنجاح الى " . $receiverUser->phone . " في تاريخ " . $transaction->created_at,
+                $user->id
+            );
+            //Receiver
+             $this->sendNotification(
+                $receiverUser->fcm_token,
+                "تم ارستقبال مبلغ " . $transaction->amount . " جنيه بنجاح",
+                "تم استقبال مبلغ " . $transaction->amount . " جنيه بنجاح من " . $user->phone . " في تاريخ " . $transaction->created_at,
+                $receiverUser->id
+            );
 
             return $this->handleResponse(
                 true,

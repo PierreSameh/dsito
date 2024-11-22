@@ -368,6 +368,11 @@ class AuthController extends Controller
         if (Auth::guard('customer')->attempt(['phone' => $request->phone, 'password' => $request->password])) {
             $user = Auth::guard('customer')->user();
             $token = $user->createToken('token')->plainTextToken;
+            
+            if($request->fcm_token){
+                $user->fcm_token = $request->fcm_token;
+                $user->save();
+            }
 
 
         }else  {

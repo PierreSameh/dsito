@@ -33,7 +33,7 @@ class AuthController extends Controller
             'string','min:8',
             'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W])[A-Za-z\d\W]+$/u',
             'confirmed'],
-            // 'fcm_token'=> ['required','string']
+            'fcm_token'=> ['nullable','string']
         ], [
             "password.regex" => __('validation.regex'),
             "required"=> __('validation.required'),
@@ -74,7 +74,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             "delivery" => 1,
             "delivery_status" => "waiting",
-            // 'fcm_token'=> $request->fcm_token
+            'fcm_token'=> $request->fcm_token ?? null
         ]);
 
         if ($user) {

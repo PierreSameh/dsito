@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Delivery;
 
+use App\Traits\FcmNotificationTrait;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\Order;
@@ -16,7 +17,7 @@ use Carbon\Carbon;
 
 class OrderController extends Controller
 {
-    use HandleResponseTrait;
+    use HandleResponseTrait, FcmNotificationTrait;
 
     public function nearbyOrders(Request $request){
         $delivery = $request->user();
@@ -266,6 +267,7 @@ class OrderController extends Controller
         ->whereNotIn('status', ['completed', 'cancelled_user', 'cancelled_delivery'])
         ->with('placeOrder')
         ->latest()->first();
+        $customer = Customer::find($lastOrder->placeOrder->customer_id);
         if($lastOrder){
             $placeOrder = PlaceOrder::findOrFail($lastOrder->place_order_id);
             if($placeOrder->payment_method == "wallet"){
@@ -278,13 +280,22 @@ class OrderController extends Controller
             $lastOrder->status = "completed";
             $lastOrder->delivery_time = Carbon::now(); 
             $lastOrder->save();
+            //notify customer
+            $notifyCustomer = $this->sendNotification(
+                $customer->fcm_token,
+                "شحنتك وصلت بنجاح",
+                "لقد تم توصيل شحنتك بنجاح",
+                $customer->id               
+            );
             $wallet->balance -= $setting->company_share;
             $wallet->save();
             return $this->handleResponse(
                 true,
                 __("order.status updated"),
                 [],
-                [$lastOrder],
+                [$lastOrder,
+                 $notifyCustomer
+                ],
                 []
             );
         }
