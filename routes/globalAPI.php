@@ -3,6 +3,7 @@
 use App\Http\Controllers\Global\AuthController;
 use App\Http\Controllers\Global\MiscController;
 use App\Http\Controllers\Global\NegotiateController;
+use App\Http\Controllers\Global\PopularPlaceController;
 use App\Http\Controllers\Global\WalletController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -35,3 +36,7 @@ Route::get('/pages/about', [MiscController::class, 'about']);
 Route::get('/pages/privacy-and-terms', [MiscController::class, 'privacyTerms']);
 Route::get('/pages/faq', [MiscController::class, 'faq']);
 Route::get('/pages/contact-us', [MiscController::class, 'contact']);
+
+//Popular Places
+Route::get('/popular-places/all', [PopularPlaceController::class, 'getAll']);
+Route::get('/popular-places/paginate', [PopularPlaceController::class, 'getPaginate']);
