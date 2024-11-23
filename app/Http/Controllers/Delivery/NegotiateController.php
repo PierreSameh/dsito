@@ -3,18 +3,20 @@
 namespace App\Http\Controllers\Delivery;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderNegotiation;
 use App\Models\PlaceOrder;
 use App\Models\Transaction;
+use App\Traits\FcmNotificationTrait;
 use App\Traits\HandleResponseTrait;
 use Illuminate\Support\Facades\Validator;
 
 class NegotiateController extends Controller
 {
-    use HandleResponseTrait;
+    use HandleResponseTrait, FcmNotificationTrait;
     public function proposePrice(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -36,6 +38,14 @@ class NegotiateController extends Controller
             'proposed_price' => $request->proposed_price,
             'status' => 'pending',
         ]);
+        $customer = Customer::findOrFail($placeOrder->customer_id);
+        $notification = $this->sendNotification(
+            $customer->fcm_token,
+            "تلقيت عرض سعر من " . $proposer->first_name,
+            "تلقيت عرض سعر على طلبك بقيمة " . $request->proposed_price . " جنيه",
+            "/api/customer/order/get-proposal/single?negotiation_id=" . $negotiation->id,
+            "GET"
+        );
         return $this->handleResponse(
             true,
             __("order.propose sent"),
@@ -143,6 +153,30 @@ class NegotiateController extends Controller
             __("order.no negotiations yet"),
             [],
             [],
+            []
+        );
+    }
+
+    public function get(Request $request){
+        $validator = Validator::make($request->all(), [
+            "negotiation_id" => "required|exists:order_negotiations,id"
+        ]);
+
+        if($validator->fails()){
+            return $this->handleResponse(
+                false, "",  [$validator->errors()->first()],[],[]
+            );
+        }
+
+        $proposal = OrderNegotiation::findOrFail($request->negotiation_id);
+
+        return $this->handleResponse(
+            true,
+            "",
+            [],
+            [
+                "negotiation" => $proposal
+            ],
             []
         );
     }

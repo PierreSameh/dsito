@@ -26,6 +26,7 @@ Route::prefix('delivery')->group(function () {
                 Route::post('/order/propose', [NegotiateController::class, 'proposePrice']);
                 Route::post('/order/respond-propose', [NegotiateController::class, 'respondToProposal']);
                 Route::get('/order/get-proposals', [NegotiateController::class, 'getProposals']);
+                Route::get('/order/get-proposal/single', [NegotiateController::class, 'get']);
 
                 //Rate Order
                 Route::post('/order/rate', [OrderController::class, 'rate']);

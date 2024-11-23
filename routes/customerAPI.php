@@ -40,6 +40,7 @@ Route::prefix('customer')->group(function () {
     Route::post('/order/propose', [NegotiateController::class, 'proposePrice']);
     Route::post('/order/respond-propose', [NegotiateController::class, 'respondToProposal']);
     Route::get('/order/get-proposals', [NegotiateController::class, 'getProposals']);
+    Route::get('/order/get-proposal/single', [NegotiateController::class, 'get']);
 
     //Cancel Order
     Route::post("/order/cancel-request", [CancelOrderController::class, "sendRequest"]);

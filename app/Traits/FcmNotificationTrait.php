@@ -6,9 +6,6 @@ use App\Models\AppNotification;
 use Google\Client as GoogleClient;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
-use App\Models\NotificationApp;
-use Carbon\Carbon;
-use App\Models\Driver;
 
 
 trait FcmNotificationTrait
@@ -39,7 +36,7 @@ trait FcmNotificationTrait
         return $token['access_token'];
     }
 
-    protected static function sendFcmNotification($fcmToken, $title, $body)
+    protected static function sendFcmNotification($fcmToken, $title, $body, $url = null, $method = null)
     {
         $projectId = self::getFcmProjectId();
         $accessToken = self::getAccessToken();
@@ -54,16 +51,20 @@ trait FcmNotificationTrait
                     'title' => $title,
                     'body' => $body,
                 ],
+                'data' => [
+                    'url' => $url ?? null,
+                    'method' => $method ?? null
+                ]
             ],
         ]);
 
         return $response->json();
     }
 
-    public function sendNotification($fcmToken, $title, $body, $customer_id = null)
+    public function sendNotification($fcmToken, $title, $body, $url = null, $method = null, $customer_id = null)
     {
         try {
-            $response = self::sendFcmNotification($fcmToken, $title, $body);
+            $response = self::sendFcmNotification($fcmToken, $title, $body, $url ?? null, $method ?? null);
             //Save Notification to database
             if($customer_id){
             AppNotification::create([

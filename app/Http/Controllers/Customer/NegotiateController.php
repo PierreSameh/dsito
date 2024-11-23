@@ -3,18 +3,20 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderNegotiation;
 use App\Models\PlaceOrder;
 use App\Models\Transaction;
+use App\Traits\FcmNotificationTrait;
 use App\Traits\HandleResponseTrait;
 use Illuminate\Support\Facades\Validator;
 
 class NegotiateController extends Controller
 {
-    use HandleResponseTrait;
+    use HandleResponseTrait, FcmNotificationTrait;
     public function proposePrice(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -28,7 +30,7 @@ class NegotiateController extends Controller
         }
 
         $placeOrder = PlaceOrder::findOrFail($request->place_order_id);
-
+        $delivery = Customer::findOrFail($request->delivery_id);
         $proposer = $request->user();
         if($placeOrder->payment_method == "wallet"){
             $wallet = Wallet::where("customer_id", $placeOrder->customer_id)->first();
@@ -50,6 +52,13 @@ class NegotiateController extends Controller
             'proposed_price' => $request->proposed_price,
             'status' => 'pending',
         ]);
+        $notification = $this->sendNotification(
+            $delivery->fcm_token,
+            "تلقيت عرض سعر من " . $proposer->first_name,
+            "تلقيت عرض سعر على طلبك بقيمة " . $request->proposed_price . " جنيه",
+            "/api/delivery/order/get-proposal/single?negotiation_id=" . $negotiation->id,
+            "GET"
+        );
         return $this->handleResponse(
             true,
             __("order.propose sent"),
@@ -173,6 +182,30 @@ class NegotiateController extends Controller
             __("order.no ongoing"),
             [],
             [],
+            []
+        );
+    }
+
+    public function get(Request $request){
+        $validator = Validator::make($request->all(), [
+            "negotiation_id" => "required|exists:order_negotiations,id"
+        ]);
+
+        if($validator->fails()){
+            return $this->handleResponse(
+                false, "",  [$validator->errors()->first()],[],[]
+            );
+        }
+
+        $proposal = OrderNegotiation::findOrFail($request->negotiation_id);
+
+        return $this->handleResponse(
+            true,
+            "",
+            [],
+            [
+                "negotiation" => $proposal
+            ],
             []
         );
     }
