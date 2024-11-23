@@ -16,6 +16,7 @@ class SettingSeeder extends Seeder
         DB::table('settings')->insert([
             "delivery_coverage" => 5,
             "company_share" => 1,
+            'cost_per_km' => 5,
             'created_at' => now(),
             'updated_at' => now(),
         ]);

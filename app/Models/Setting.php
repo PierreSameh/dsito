@@ -8,6 +8,7 @@ class Setting extends Model
 {
     protected $fillable = [
         "delivery_coverage",
-        "company_share"
+        "company_share",
+        "cost_per_km"
     ];
 }

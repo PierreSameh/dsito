@@ -16,6 +16,8 @@ Route::prefix('customer')->group(function () {
     //Auth
     Route::post('/register', [AuthController::class, 'register']);
 
+    Route::get("/cost-per-km", [PlaceOrderController::class, 'getCostPerKM']);
+
     Route::middleware('auth:sanctum,customer')->group(function () {
 
     //Favorite

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use App\Models\Favorite;
 use App\Models\PlaceOrder;
+use App\Models\Setting;
 use DanHarrin\LivewireRateLimiting\WithRateLimiting;
 use Illuminate\Http\Request;
 use App\Traits\HandleResponseTrait;
@@ -13,6 +14,22 @@ use Illuminate\Support\Facades\Validator;
 class PlaceOrderController extends Controller
 {
     use HandleResponseTrait;
+
+    public function getCostPerKM(){
+        $cost = Setting::select('cost_per_km')->first();
+        if($cost){
+            return $this->handleResponse(
+                true,
+                "",
+                [],
+                [
+                    $cost
+                ],
+                []
+            );
+        }
+        return response()->json(['please run DB seeders on the server, or set the cost\km in admin panel'], 400);
+    }
 
     public function placeOrder(Request $request){
         try {
