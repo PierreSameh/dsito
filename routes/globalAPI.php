@@ -40,3 +40,4 @@ Route::get('/pages/contact-us', [MiscController::class, 'contact']);
 //Popular Places
 Route::get('/popular-places/all', [PopularPlaceController::class, 'getAll']);
 Route::get('/popular-places/paginate', [PopularPlaceController::class, 'getPaginate']);
+Route::get('/popular-places/get', [PopularPlaceController::class, 'get']);
