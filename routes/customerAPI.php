@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Customer\AuthController;
 use App\Http\Controllers\Customer\CancelOrderController;
 use App\Http\Controllers\Customer\ChangeModeController;
+use App\Http\Controllers\Customer\MessageController;
 use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\Customer\ProfileController;
 
@@ -46,6 +47,10 @@ Route::prefix('customer')->group(function () {
     Route::post("/order/cancel-request", [CancelOrderController::class, "sendRequest"]);
     Route::get('/order/cancel-requests/get', [CancelOrderController::class, 'getRequests']);
     Route::post('/order/cancel/respond', [CancelOrderController::class, 'respond']);
+
+    //Messages
+    Route::post('/order/messages/send', [MessageController::class, 'send']);
+    Route::get('/order/messages/get', [MessageController::class, 'get']);
 
     //Rate Order
     Route::post('/order/rate', [OrderController::class, 'rate']);

@@ -22,5 +22,5 @@ return [
     "rate sent" => "Your rating has been received, thank you for helping to improve the service",
     "can't rate this order" => "This order cannot be rated",
     "last not completed" => "your last order is not completed",
-
+    "message sent" => "message sent",
 ];

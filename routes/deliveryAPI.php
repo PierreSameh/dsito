@@ -4,6 +4,7 @@ use App\Http\Controllers\Delivery\ActivitiesController;
 use App\Http\Controllers\Delivery\AuthController;
 use App\Http\Controllers\Delivery\CancelOrderController;
 use App\Http\Controllers\Delivery\LocationController;
+use App\Http\Controllers\Delivery\MessageController;
 use App\Http\Controllers\Delivery\NegotiateController;
 use App\Http\Controllers\Delivery\OrderController;
 use App\Http\Controllers\Delivery\ProfileController;
@@ -45,6 +46,9 @@ Route::prefix('delivery')->group(function () {
     Route::post("/order/status/sec-point", [OrderController::class, 'setSecPoint']);
     Route::post("/order/status/completed", [OrderController::class, 'setCompleted']);
 
+    //Messages
+    Route::post('/order/messages/send', [MessageController::class, 'send']);
+    Route::get('/order/messages/get', [MessageController::class, 'get']);
 
     //Cancel Order
     Route::get('/order/cancel-requests/get', [CancelOrderController::class, 'getRequests']);
