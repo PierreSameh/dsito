@@ -12,4 +12,8 @@ class Message extends Model
         'sender_id',
         'message',
     ];
+
+    public function order(){
+        return $this->belongsTo(Order::class);
+    }
 }

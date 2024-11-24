@@ -27,4 +27,8 @@ class Order extends Model
     public function cancel(){
         return $this->hasOne(OrderCancel::class);
     }
+
+    public function messages(){
+        return $this->hasMany(Message::class);
+    }
 }
