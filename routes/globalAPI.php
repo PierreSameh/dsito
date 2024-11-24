@@ -30,6 +30,9 @@ Route::post('/wallet/deposit', [WalletController::class, 'deposit'])->middleware
 Route::get('/wallet/transfer/get-customer', [WalletController::class, 'getCustomerByPhone']);
 Route::post('/wallet/transfer/send', [WalletController::class, 'transfer'])->middleware('auth:sanctum,customer');
 Route::post("/wallet/set-pin", [WalletController::class, 'setPIN'])->middleware('auth:sanctum,customer');
+Route::get("/wallet/send-code", [WalletController::class, 'sendCode'])->middleware('auth:sanctum,customer');
+Route::post("/wallet/check-code", [WalletController::class, 'checkCode'])->middleware('auth:sanctum,customer');
+
 
 //MISC pages
 Route::get('/pages/about', [MiscController::class, 'about']);

@@ -9,13 +9,15 @@ use App\Models\Transaction;
 use App\Models\Wallet;
 use App\Models\WalletRecharge;
 use App\Traits\HandleResponseTrait;
+use App\Traits\SendMailTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class WalletController extends Controller
 {
-    use HandleResponseTrait, FcmNotificationTrait;
+    use HandleResponseTrait, FcmNotificationTrait, SendMailTrait;
 
     public function setPIN(Request $request){
         try{
@@ -62,6 +64,95 @@ class WalletController extends Controller
             );
         }
     }
+    public function sendCode(Request $request) {
+
+        $user = $request->user();
+
+
+                $code = rand(1000, 9999);
+
+                $user->last_otp = Hash::make($code);
+                $user->last_otp_expire = Carbon::now()->addMinutes(10)->timezone('Africa/Cairo');
+                $user->save();
+    
+    
+                $message = __("registration.Your Authentication Code is") . $code;
+
+                $this->sendEmail($user->email,"OTP", $message);
+    
+    
+                return $this->handleResponse(
+                    true,
+                    __("registration.auth code sent"),
+                    [],
+                    [],
+                    [
+                        "code get expired after 10 minuts",
+                        "the same endpoint you can use for ask resend email"
+                    ]
+                );
+    }
+
+    public function checkCode(Request $request) {
+        $validator = Validator::make($request->all(), [
+            "code" => ["required", "digits:4"],
+        ], [
+            "required"=> __('validation.required'),
+            "regex"=> __('validation.regex')
+        ]);
+
+
+        if ($validator->fails()) {
+            return $this->handleResponse(
+                false,
+                "",
+                [$validator->errors()->first()],
+                [],
+                []
+            );
+        }
+
+
+
+
+        $user = $request->user();
+        $code = $request->code;
+
+
+            if (!Hash::check($code, $user->last_otp ? $user->last_otp : Hash::make(0000))) {
+                return $this->handleResponse(
+                    false,
+                    "",
+                    [__("registration.incorrect code")],
+                    [],
+                    []
+                );
+            } else {
+                $timezone = 'Africa/Cairo'; // Replace with your specific timezone if different
+                $verificationTime = new Carbon($user->last_otp_expire, $timezone);
+                if ($verificationTime->isPast()) {
+                    return $this->handleResponse(
+                        false,
+                        "",
+                        [__("registration.this code is expired")],
+                        [],
+                        []
+                    );
+                } else {
+                    if ($user) {
+                        return $this->handleResponse(
+                            true,
+                            __("registration.code verified"),
+                            [],
+                            [],
+                            []
+                        );
+                    }
+                }
+            }
+
+    }
+
 
     public function get(Request $request){
         $user = $request->user();
