@@ -12,7 +12,7 @@
             </div>
 
         @else
-            <p class="text-gray-500">No order data available.</p>
+            <p class="text-gray-500">{{__("No order data available")}}.</p>
         @endif
     </x-filament::card>
 

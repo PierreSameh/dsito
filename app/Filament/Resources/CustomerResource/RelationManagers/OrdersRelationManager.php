@@ -7,14 +7,31 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class OrdersRelationManager extends RelationManager
 {
     protected static string $relationship = 'orders';
-
+    public static function getLabel(): ?string
+    {
+        return __('Order');  // Translation function works here
+    }
+    public static function getRecordTitleAttribute(): ?string
+    {
+        return __("Orders");
+    }
+    public static function getTitle(Model $ownerRecord, string $pageClass): string
+    {
+        return __("Orders");
+    }
+    public static function getPluralLabel(): ?string
+    {
+        return __("Orders");
+    }
     public function form(Form $form): Form
     {
         return $form
@@ -39,21 +56,20 @@ class OrdersRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('price')
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('id')
-                    ->label('Order Number')
-                    ->numeric()
-                    ->sortable(),
+                    ->label(__('Order Number'))
+                    ->numeric(),
                 Tables\Columns\TextColumn::make('placeOrder.customer.full_name')
-                    ->label('Orderd By')
-                    ->numeric()
-                    ->sortable(),
+                    ->label(__('Ordered By'))
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('delivery.full_name')
                     ->numeric()
-                    ->label('Delivery By')
-                    ->sortable(),
+                    ->label(__('Delivery By')),
                 Tables\Columns\TextColumn::make('price')
-                    ->money()
+                    ->money("EGP")
+                    ->label(__("Price"))
                     ->sortable(),
                 // Tables\Columns\TextColumn::make('rate_delivery')
                 //     ->numeric()
@@ -61,17 +77,22 @@ class OrdersRelationManager extends RelationManager
                 // Tables\Columns\TextColumn::make('rate_customer')
                 //     ->numeric()
                 //     ->sortable(),
-                Tables\Columns\TextColumn::make('placeOrder.payment_method'),
+                Tables\Columns\TextColumn::make('placeOrder.payment_method')
+                    ->label(__("Payment Method"))
+                    ->formatStateUsing(function ($record){
+                        return $record->placeOrder->payment_method == "wallet" ? __("favorite.wallet") : __("Cash");
+                    }),
                 Tables\Columns\TextColumn::make('placeOrder.paid')
+                ->label(__("Pay Status"))
                 ->badge()
                 ->color(fn ( $state): string => $state ? 'success' : 'danger')
                 ->formatStateUsing(
-                    fn ( $record): string => $record->placeOrder->paid ? 'Paid' : 'Not Paid'
+                    fn ( $record): string => $record->placeOrder->paid ? __('Paid') : __('Not Paid')
                 )
                 ->sortable(),
                 Tables\Columns\TextColumn::make('status')
-                    ->label(('Order Status'))
-                    ->formatStateUsing(function ($record) {
+                ->label(__('Order Status'))
+                ->formatStateUsing(function ($record) {
 
                         switch ($record->status) {
                             case 'waiting':
@@ -94,35 +115,77 @@ class OrdersRelationManager extends RelationManager
                     })
                     ->searchable(),
                 Tables\Columns\TextColumn::make('delivery_time')
+                    ->label(__("Delivery Time"))
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label(__("Creation Date"))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('payment_method')
+                ->label(__('Payment Method'))
+                ->options(function () {
+                    return [
+                        'wallet' => __('favorite.wallet'),
+                        'cash' => __('Cash')
+                    ];
+                })
+                ->query(function (Builder $query, array $data) {
+                    if ($data['value']) {
+                        return $query->whereHas('placeOrder', function ($q) use ($data) {
+                            $q->where('payment_method', $data['value']);
+                        });
+                    }
+                    return $query;
+                }),
+                // Filter for Pay Status (placeOrder.paid)
+                Tables\Filters\TernaryFilter::make('placeOrder.paid')
+                    ->label(__('Pay Status'))
+                    ->queries(
+                        true: fn (Builder $query) => $query->whereHas('placeOrder', function ($q){
+                            $q->where('paid', 1);
+                        }),
+                        false: fn (Builder $query) => $query->whereHas('placeOrder', function ($q){
+                            $q->where('paid', 0);
+                        }),
+                        blank: fn (Builder $query) => $query, // In this example, we do not want to filter the query when it is blank.
+                    ),
+                // Filter for Order Status (status)
+                SelectFilter::make('status')
+                    ->label(__('Order Status'))
+                    ->options([
+                        'waiting' => __('Waiting'),
+                        'first_point' => __('First Point'),
+                        'received' => __('Received'),
+                        'sec_point' => __('Second Point'),
+                        'completed' => __('Completed'),
+                        'cancelled_user' => __('Cancelled by user'),
+                        'cancelled_delivery' => __('Cancelled by delivery'),
+        ])
+        ->placeholder(__('All Statuses')),
             ])
             ->headerActions([
             ])
             ->actions([
                 Tables\Actions\Action::make('view')
-                    ->label('View')
+                    ->label(__('View'))
                     ->url(fn(Order $record) => ( '/admin/orders/' . $record->id))
                     ->openUrlInNewTab(false), // Ensure it doesn't open in a new tab
-                Tables\Actions\Action::make('cancelled_user')
-                    ->label('إيقاف كمستخدم')
-                    ->color('danger')
-                    ->action(fn(Order $record) => $record->update(['status' => 'cancelled_user'])),
-                Tables\Actions\Action::make('cancelled_delivery')
-                    ->label('إيقاف كمندوب')
-                    ->color('danger')
-                    ->action(fn(Order $record) => $record->update(['status' => 'cancelled_delivery'])),
+                // Tables\Actions\Action::make('cancelled_user')
+                //     ->label(__("Cancel Customer"))
+                //     ->color('danger')
+                //     ->action(fn(Order $record) => $record->update(['status' => 'cancelled_user'])),
+                // Tables\Actions\Action::make('cancelled_delivery')
+                //     ->label(__("Cancel Delivery"))
+                //     ->color('danger')
+                //     ->action(fn(Order $record) => $record->update(['status' => 'cancelled_delivery'])),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ]);
     }
 }

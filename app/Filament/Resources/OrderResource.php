@@ -10,6 +10,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -20,6 +21,15 @@ class OrderResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-document-duplicate';
 
+    public static function getLabel(): ?string
+    {
+        return __('Order');  // Translation function works here
+    }
+    public static function getPluralLabel(): ?string
+    {
+        return __("Orders");
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->with(['placeOrder.customer', 'delivery']);
@@ -29,15 +39,24 @@ class OrderResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\TextInput::make('delivery.full_name')
+                ->label(__('Delivery By')),
+                Forms\Components\TextInput::make('delivery.username')
+                ->label(__('Username')),
                 Forms\Components\TextInput::make('price')
+                    ->label(__("Price"))
                     ->required()
                     ->numeric()
                     ->prefix('EGP'),
-                Forms\Components\TextInput::make('rate_delivery'),
-                Forms\Components\TextInput::make('rate_customer'),
+                Forms\Components\TextInput::make('rate_delivery')
+                    ->label(__("Delivery Rating")),
+                Forms\Components\TextInput::make('rate_customer')
+                    ->label(__("Customer Rating")),
                 Forms\Components\TextInput::make('status')
+                    ->label(__("Order Status"))
                     ->required(),
-                Forms\Components\DateTimePicker::make('delivery_time'),
+                Forms\Components\DateTimePicker::make('delivery_time')
+                    ->label(__("Delivery Time")),
             ]);
     }
 
@@ -46,19 +65,17 @@ class OrderResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('id')
-                ->label('Order Number')
-                ->numeric()
-                ->sortable(),
+                ->label(__('Order Number'))
+                ->numeric(),
                 Tables\Columns\TextColumn::make('placeOrder.customer.full_name')
-                    ->label('Orderd By')
-                    ->numeric()
-                    ->sortable(),
+                    ->label(__('Ordered By'))
+                    ->numeric(),
                 Tables\Columns\TextColumn::make('delivery.full_name')
                     ->numeric()
-                    ->label('Delivery By')
-                    ->sortable(),
+                    ->label(__('Delivery By')),
                 Tables\Columns\TextColumn::make('price')
-                    ->money()
+                    ->label(__("Price"))
+                    ->money("EGP")
                     ->sortable(),
                 // Tables\Columns\TextColumn::make('rate_delivery')
                 //     ->numeric()
@@ -66,16 +83,20 @@ class OrderResource extends Resource
                 // Tables\Columns\TextColumn::make('rate_customer')
                 //     ->numeric()
                 //     ->sortable(),
-                Tables\Columns\TextColumn::make('placeOrder.payment_method'),
+                Tables\Columns\TextColumn::make('placeOrder.payment_method')
+                    ->label(__("Payment Method"))
+                    ->formatStateUsing(function ($record){
+                        return $record->placeOrder->payment_method == "wallet" ? __("favorite.wallet") : __("Cash");
+                    }),
                 Tables\Columns\TextColumn::make('placeOrder.paid')
-                ->badge()
-                ->color(fn ( $state): string => $state ? 'success' : 'danger')
-                ->formatStateUsing(
-                    fn ( $record): string => $record->placeOrder->paid ? 'Paid' : 'Not Paid'
-                )
-                ->sortable(),
+                    ->label(__("Pay Status"))
+                    ->badge()
+                    ->color(fn ( $state): string => $state ? 'success' : 'danger')
+                    ->formatStateUsing(
+                        fn ( $record): string => $record->placeOrder->paid ? __('Paid') : __('Not Paid')
+                        ),
                 Tables\Columns\TextColumn::make('status')
-                    ->label(('Order Status'))
+                    ->label(__('Order Status'))
                     ->formatStateUsing(function ($record) {
 
                         switch ($record->status) {
@@ -99,15 +120,56 @@ class OrderResource extends Resource
                     })
                     ->searchable(),
                 Tables\Columns\TextColumn::make('delivery_time')
+                    ->label(__("Delivery Time"))
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label(__("Creation Date"))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('payment_method')
+                ->label(__('Payment Method'))
+                ->options(function () {
+                    return [
+                        'wallet' => __('favorite.wallet'),
+                        'cash' => __('Cash')
+                    ];
+                })
+                ->query(function (Builder $query, array $data) {
+                    if ($data['value']) {
+                        return $query->whereHas('placeOrder', function ($q) use ($data) {
+                            $q->where('payment_method', $data['value']);
+                        });
+                    }
+                    return $query;
+                }),
+                // Filter for Pay Status (placeOrder.paid)
+                Tables\Filters\TernaryFilter::make('placeOrder.paid')
+                    ->label(__('Pay Status'))
+                    ->queries(
+                        true: fn (Builder $query) => $query->whereHas('placeOrder', function ($q){
+                            $q->where('paid', 1);
+                        }),
+                        false: fn (Builder $query) => $query->whereHas('placeOrder', function ($q){
+                            $q->where('paid', 0);
+                        }),
+                        blank: fn (Builder $query) => $query, // In this example, we do not want to filter the query when it is blank.
+                    ),
+                // Filter for Order Status (status)
+                SelectFilter::make('status')
+                    ->label(__('Order Status'))
+                    ->options([
+                        'waiting' => __('Waiting'),
+                        'first_point' => __('First Point'),
+                        'received' => __('Received'),
+                        'sec_point' => __('Second Point'),
+                        'completed' => __('Completed'),
+                        'cancelled_user' => __('Cancelled by user'),
+                        'cancelled_delivery' => __('Cancelled by delivery'),
+                    ])
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
