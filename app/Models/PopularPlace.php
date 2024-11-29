@@ -15,4 +15,7 @@ class PopularPlace extends Model
         "lat"
     ];
 
+    protected $casts = [
+        'images' => 'array', // Cast it as an array to simplify encoding/decoding.
+    ];
 }
