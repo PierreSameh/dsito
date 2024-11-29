@@ -45,6 +45,10 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('id')
+                ->label('Order Number')
+                ->numeric()
+                ->sortable(),
                 Tables\Columns\TextColumn::make('placeOrder.customer.full_name')
                     ->label('Orderd By')
                     ->numeric()

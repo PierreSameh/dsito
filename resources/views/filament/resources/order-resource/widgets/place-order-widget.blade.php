@@ -7,7 +7,7 @@
                 <p><strong>{{ __("From Address") }}:</strong> {{ $placeOrder->address_from }}</p>
                 <p><strong>{{ __("To Address") }}:</strong> {{ $placeOrder->address_to }}</p>
                 <p><strong>{{ __("Price") }}:</strong> EGP {{ number_format($placeOrder->price, 2) }}</p>
-                <p><strong>{{ __("Payment Method") }}:</strong> {{ __($placeOrder->payment_method) }}</p>
+                <p><strong>{{ __("Payment Method") }}:</strong>  {{ $placeOrder->payment_method == "wallet" ? __('favorite.wallet') : __('Cash')}}</p>
                 <p style="grid-column: span 2"><strong>{{ __('Details')}}:</strong> {{ $placeOrder->details }}</p>
             </div>
 

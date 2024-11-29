@@ -6,5 +6,6 @@ return [
     "address update" => "address updated successfully",
     "undefined address" => "undefined address, please enter a used address",
     "deleted" => "address deleted successfully",
-    "no results" => "you favorites menu is empty, try adding some addesses"
+    "no results" => "you favorites menu is empty, try adding some addesses",
+    "wallet"=> "Wallet"
 ];
