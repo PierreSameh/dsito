@@ -103,11 +103,11 @@ class OrderResource extends Resource
                             case 'waiting':
                                 return __('Waiting');
                             case 'first_point':
-                                return __('First point');
+                                return __('First Point');
                             case 'received':
                                 return __('Received');
                             case 'sec_point':
-                                return __('Second point');
+                                return __('Second Point');
                             case 'completed':
                                 return __('Completed');
                             case 'cancelled_user':

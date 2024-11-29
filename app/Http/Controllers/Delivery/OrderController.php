@@ -267,15 +267,39 @@ class OrderController extends Controller
         ->whereNotIn('status', ['completed', 'cancelled_user', 'cancelled_delivery'])
         ->with('placeOrder')
         ->latest()->first();
+
         $customer = Customer::find($lastOrder->placeOrder->customer_id);
         if($lastOrder){
             $placeOrder = PlaceOrder::findOrFail($lastOrder->place_order_id);
-            if($placeOrder->payment_method == "wallet"){
-                $wallet->balance += $lastOrder->price;
-                $wallet->save();
-                $lastTransaction = $wallet->receiver()->where('type', 'pay')->latest()->first();
-                $lastTransaction->status = "completed";
-                $lastTransaction->save();
+            switch ($placeOrder->payment_method) {
+                case 'wallet':
+                    $wallet->balance += $lastOrder->price;
+                    $wallet->save();
+            
+                    $lastTransaction = $wallet->receiver()
+                        ->where('type', 'pay')
+                        ->latest()
+                        ->first();
+            
+                    if ($lastTransaction) {
+                        $lastTransaction->status = 'completed';
+                        $lastTransaction->save();
+                    }
+                    break;
+            
+                case 'cash':
+                default:
+                    $validator = Validator::make($request->all(), [
+                        'paid' => 'required|numeric|in:0,1',
+                    ]);
+                    if($validator->fails()){
+                        return $this->handleResponse(false,"", [$validator->errors()->first()],[],["لازم تقول وصلك الفلوس ولا لا لو وسيلة الدفع نقدي"]);
+                    }
+                    if ($request->paid) {
+                        $placeOrder->paid = 1;
+                        $placeOrder->save();
+                    }
+                    break;
             }
             $lastOrder->status = "completed";
             $lastOrder->delivery_time = Carbon::now(); 
