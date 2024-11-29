@@ -52,6 +52,7 @@ class SettingResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->paginated(false)
             ->columns([
                 Tables\Columns\TextColumn::make('delivery_coverage')
                     ->label(__("Delivery Coverage"))

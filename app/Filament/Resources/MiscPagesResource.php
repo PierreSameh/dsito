@@ -59,6 +59,7 @@ class MiscPagesResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->paginated(false)
             ->columns([
                 Tables\Columns\TextColumn::make('about')
                     ->label(__("About Page"))
