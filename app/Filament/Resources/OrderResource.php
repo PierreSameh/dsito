@@ -23,7 +23,7 @@ class OrderResource extends Resource
 
     public static function getLabel(): ?string
     {
-        return __('Order');  // Translation function works here
+        return __('order.order');  // Translation function works here
     }
     public static function getPluralLabel(): ?string
     {

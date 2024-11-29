@@ -23,5 +23,6 @@ return [
     "can't rate this order" => "لا يمكن تقييم هذا الطلب",
     "last not completed" => "طلبك الاخير غير مكتمل",
     "message sent" => "تم الارسال",
+    "order" => "الطلب"
 
 ];

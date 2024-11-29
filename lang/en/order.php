@@ -23,4 +23,5 @@ return [
     "can't rate this order" => "This order cannot be rated",
     "last not completed" => "your last order is not completed",
     "message sent" => "message sent",
+    "order" => "Order"
 ];
