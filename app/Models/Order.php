@@ -27,4 +27,16 @@ class Order extends Model
     public function cancel(){
         return $this->hasOne(OrderCancel::class);
     }
+    public function getDeliveryTimeAttribute($value) {
+        if ($value) {
+            return date('Y-m-d h:i A', strtotime($value)); // Formats the date as YYYY-MM-DD and time as HH:MM AM/PM
+        }
+        else if (str_starts_with($this->status, 'cancelled_')) {
+            return 'Cancelled';
+        }
+         else {
+            return 'In Progress';
+        }
+    }
+
 }
