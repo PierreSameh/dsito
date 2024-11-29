@@ -86,6 +86,22 @@
     "Reject Recharge": "رفض الشحن",
     "Provide a reason for rejecting this recharge": "ادخل سبب رفض عملية الشحن",
     "Submit": "تأكيد",
-    "Rejection Reason": "سبب الرفض"
+    "Rejection Reason": "سبب الرفض",
+    "Receipt": "الايصال",
+    "Page": "الصفحة",
+    "Pages": "الصفحات",
+    "About Page": "صفحة عن التطبيق",
+    "Privacy and Terms Page": "صفحة الخصوصية والشروط",
+    "FaQ Page": "صفحة الاسئلة الشائعة",
+    "Answer": "الإجابة",
+    "From FaQ you can add questions and their answers": "في الاسئلة الشائعة يمكنك إضافة الأسئلة وإجاباتها",
+    "Add Question": "اضف سؤال",
+    "Contact Method": "وسيلة التواصل",
+    "Question": "السؤال",
+    "Delivery Coverage": "تغطية المندوب",
+    "Company's Share": "نسبة الشركة",
+    "Cost\\Km": "التكلفة/كم",
+    "Km": "كم",
+    "Settings": "الاعدادات"
 
 }

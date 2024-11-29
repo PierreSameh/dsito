@@ -19,11 +19,13 @@ class MiscPagesResource extends Resource
     protected static ?string $model = MiscPages::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
+
     protected static ?int $navigationSort = 6;
+
 
     public static function getLabel(): ?string
     {
-        return __('Page');  // Translation function works here
+        return __('Pages');  // Translation function works here
     }
     public static function getPluralLabel(): ?string
     {
@@ -35,16 +37,20 @@ class MiscPagesResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Textarea::make('about')
+                    ->label(__("About Page"))
                     ->columnSpanFull(),
                 Forms\Components\Textarea::make('privacy_terms')
+                    ->label(__("Privacy and Terms Page"))
                     ->columnSpanFull(),
                 Forms\Components\KeyValue::make('faq')
-                    ->keyLabel('Question')
-                    ->valueLabel('Answer')
-                    ->helperText('From question you can add questions and their answers')
-                    ->addButtonLabel('Add Question')
+                    ->label(__("FaQ Page"))
+                    ->keyLabel(__("Question"))
+                    ->valueLabel(__('Answer'))
+                    ->helperText(__('From FaQ you can add questions and their answers'))
+                    ->addButtonLabel(__('Add Question'))
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('contact_us')
+                    ->label(__("Contact Method"))
                     ->maxLength(255)
                     ->default(null),
             ]);
@@ -55,14 +61,18 @@ class MiscPagesResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('about')
+                    ->label(__("About Page"))
                     ->limit(40)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('privacy_terms')
+                    ->label(__("Privacy and Terms Page"))
                     ->limit(40)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('contact_us')
+                    ->label(__("Contact Method"))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label(__("Creation Date"))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

@@ -32,7 +32,7 @@ class WalletRechargeResource extends Resource
         return $form
             ->schema([
                 FileUpload::make('photo')
-                ->label(__("Photo"))
+                ->label(__("Receipt"))
                 ->disabled(),
                 TextInput::make('phone_number')
                 ->label(__("Phone"))
@@ -48,7 +48,7 @@ class WalletRechargeResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\ImageColumn::make('photo')
-                ->label(__('Photo'))
+                ->label(__('Receipt'))
                 ->url(fn($record) => asset($record->photo)), // Make image clickable
                 Tables\Columns\TextColumn::make('wallet.customer.username')
                     ->label(__("Username")),

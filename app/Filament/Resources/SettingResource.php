@@ -19,22 +19,32 @@ class SettingResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-cog-8-tooth';
     protected static ?int $navigationSort = 7;
-
+    public static function getLabel(): ?string
+    {
+        return __('Settings');  // Translation function works here
+    }
+    public static function getPluralLabel(): ?string
+    {
+        return __("Settings");
+    }
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('delivery_coverage')
+                    ->label(__("Delivery Coverage"))
                     ->required()
-                    ->prefix('Km: ')
+                    ->prefix('Km')
                     ->numeric(),
                 Forms\Components\TextInput::make('company_share')
+                    ->label(__("Company's Share"))
                     ->required()
-                    ->prefix('EGP: ')
+                    ->prefix(__('EGP'))
                     ->numeric(),
                 Forms\Components\TextInput::make('cost_per_km')
+                    ->label(__("Cost\Km"))
                     ->required()
-                    ->prefix('EGP: ')
+                    ->prefix(__('EGP'))
                     ->numeric(),
             ]);
     }
@@ -44,17 +54,17 @@ class SettingResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('delivery_coverage')
+                    ->label(__("Delivery Coverage"))
                     ->numeric()
-                    ->prefix('Km: ')
-                    ->sortable(),
+                    ->suffix(" " . __('Km')),
                 Tables\Columns\TextColumn::make('company_share')
+                    ->label(__("Company's Share"))
                     ->numeric()
-                    ->prefix('EGP: ')
-                    ->sortable(),
+                    ->money("EGP"),
                 Tables\Columns\TextColumn::make('cost_per_km')
+                    ->label(__("Cost\Km"))
                     ->numeric()
-                    ->prefix('EGP: ')
-                    ->sortable(),
+                    ->money("EGP"),
             ])
             ->filters([
                 //
