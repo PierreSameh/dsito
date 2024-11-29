@@ -44,7 +44,7 @@ class AuthController extends Controller
             "numeric"=> __('validation.numeric'),
             "regex"=> __('validation.regex'),
             "confirmed"=> __('validation.confirmed'),
-            "phone.regex"=> __('validation.regex') . "must begin with +966"
+            "phone.regex"=> __('validation.regex')
 
         ]);
 

@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Traits\HandleResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Events\SendMessageEvent;
 
 class MessageController extends Controller
 {
@@ -44,6 +45,7 @@ class MessageController extends Controller
                 "sender_id" => $customer->id,
                 "message" => $request->message
             ]);
+            broadcast(new SendMessageEvent($message))->toOthers();
 
             return $this->handleResponse(
                 true,
