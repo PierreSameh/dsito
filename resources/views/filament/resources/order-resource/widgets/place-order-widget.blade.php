@@ -8,7 +8,7 @@
                 <p><strong>{{ __("To Address") }}:</strong> {{ $placeOrder->address_to }}</p>
                 <p><strong>{{ __("Price") }}:</strong> EGP {{ number_format($placeOrder->price, 2) }}</p>
                 <p><strong>{{ __("Payment Method") }}:</strong> {{ __($placeOrder->payment_method) }}</p>
-                <p style="grid-column: span 2"><strong>{{ __('Details')}}:</strong> {{ ucfirst($placeOrder->details) }}</p>
+                <p style="grid-column: span 2"><strong>{{ __('Details')}}:</strong> {{ $placeOrder->details }}</p>
             </div>
 
         @else
