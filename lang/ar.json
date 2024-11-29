@@ -74,5 +74,18 @@
     "Status": "الحالة",
     "Pending" : "منتظر التأكيد",
     "Accepted": "مقبول",
-    "Rejected": "مرفوض"
+    "Rejected": "مرفوض",
+    "Wallet Recharge": "شحن المحفظة",
+    "Wallet Recharges": "شحن المحفظة",
+    "Accept": "قبول",
+    "Accept Recharge": "قبول الشحن",
+    "Enter the amount to add to the wallet": "ادخل القيمة لاضافتها في المحفظة",
+    "Add Amount": "ادخل القيمة",
+    "Amount": "القيمة",
+    "Reject": "رفض",
+    "Reject Recharge": "رفض الشحن",
+    "Provide a reason for rejecting this recharge": "ادخل سبب رفض عملية الشحن",
+    "Submit": "تأكيد",
+    "Rejection Reason": "سبب الرفض"
+
 }

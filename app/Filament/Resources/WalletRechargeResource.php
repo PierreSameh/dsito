@@ -19,13 +19,27 @@ class WalletRechargeResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
 
+    public static function getLabel(): ?string
+    {
+        return __('Wallet Recharge');  // Translation function works here
+    }
+    public static function getPluralLabel(): ?string
+    {
+        return __("Wallet Recharges");
+    }
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                FileUpload::make('photo')->disabled(),
-                TextInput::make('phone_number')->disabled(),
-                TextInput::make('status')->disabled()
+                FileUpload::make('photo')
+                ->label(__("Photo"))
+                ->disabled(),
+                TextInput::make('phone_number')
+                ->label(__("Phone"))
+                ->disabled(),
+                TextInput::make('status')
+                ->label(__("Status"))
+                ->disabled()
             ]);
     }
 
@@ -34,24 +48,31 @@ class WalletRechargeResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\ImageColumn::make('photo')
-                ->label('Photo')
+                ->label(__('Photo'))
                 ->url(fn($record) => asset($record->photo)), // Make image clickable
-                Tables\Columns\TextColumn::make('wallet.customer.username'),
-                Tables\Columns\TextColumn::make('phone_number')->label('Phone Number'),
-                Tables\Columns\TextColumn::make('status'),
+                Tables\Columns\TextColumn::make('wallet.customer.username')
+                    ->label(__("Username")),
+                Tables\Columns\TextColumn::make('phone_number')->label(__('Phone')),
+                Tables\Columns\TextColumn::make('status')
+                ->label(__("Status"))
+                ->formatStateUsing(function ($record){
+                    return $record->status == "pending" ? __("Pending") : $record->status;
+                }),
             ])
             ->defaultSort('created_at', 'desc')
             ->actions([
                 Tables\Actions\Action::make('accept')
-                    ->label('Accept')
-                    ->modalHeading('Accept Recharge')
-                    ->modalSubheading('Enter the amount to add to the wallet.')
-                    ->modalButton('Add Amount')
+                    ->label(__('Accept'))
+                    ->color('success')
+                    ->modalHeading(__('Accept Recharge'))
+                    ->modalSubheading(__('Enter the amount to add to the wallet'))
+                    ->modalButton(__('Add Amount'))
                     ->form([
                         Forms\Components\TextInput::make('amount')
+                            ->prefix(__("EGP"))
                             ->required()
                             ->numeric()
-                            ->label('Amount'),
+                            ->label(__('Amount')),
                     ])
                     ->action(function ($record, array $data) {
                         $wallet = $record->wallet;
@@ -66,14 +87,15 @@ class WalletRechargeResource extends Resource
                     ),
 
                     Tables\Actions\Action::make('reject')
-                    ->label('Reject')
-                    ->modalHeading('Reject Recharge')
-                    ->modalSubheading('Provide a reason for rejecting this recharge.')
-                    ->modalButton('Submit')
+                    ->label(__('Reject'))
+                    ->color('danger')
+                    ->modalHeading(__('Reject Recharge'))
+                    ->modalSubheading(__('Provide a reason for rejecting this recharge'))
+                    ->modalButton(__('Submit'))
                     ->form([
                         Forms\Components\Textarea::make('reject_reason')
                             ->required()
-                            ->label('Rejection Reason'),
+                            ->label(__('Rejection Reason')),
                     ])
                     ->action(function ($record, array $data) {
                         $record->status = 'rejected';

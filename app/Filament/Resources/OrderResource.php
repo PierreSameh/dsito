@@ -183,9 +183,9 @@ class OrderResource extends Resource
                 ->action(fn(Order $record) => $record->update(['status' => 'cancelled_delivery'])),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ]);
     }
 
