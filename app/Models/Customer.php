@@ -40,24 +40,54 @@ class Customer extends Authenticatable
     ];
 
 
-    public function favorites(){
+    public function favorites()
+    {
         return $this->hasMany(Favorite::class);
     }
-    
-    public function placeOrders(){
+
+    public function placeOrders()
+    {
         return $this->hasMany(PlaceOrder::class);
     }
 
-    public function wallet(){
+    public function wallet()
+    {
         return $this->hasOne(Wallet::class);
     }
 
-    public function orders(){
+    public function orders()
+    {
         return $this->hasMany(Order::class, "delivery_id");
     }
 
-    public function notifications(){
+    public function notifications()
+    {
         return $this->hasMany(AppNotification::class);
     }
 
+    // Access transactions where the customer is the sender
+    public function sentTransactions()
+    {
+        return $this->hasManyThrough(
+            Transaction::class, // Final model (transactions)
+            Wallet::class,      // Intermediate model (wallets)
+            'customer_id',      // Foreign key on wallets (to customer table)
+            'sender',           // Foreign key on transactions (to wallets table)
+            'id',               // Local key on customers table
+            'id'                // Local key on wallets table
+        );
+    }
+
+    // Access transactions where the customer is the receiver
+    public function receivedTransactions()
+    {
+        return $this->hasManyThrough(
+            Transaction::class, // Final model (transactions)
+            Wallet::class,      // Intermediate model (wallets)
+            'customer_id',      // Foreign key on wallets (to customer table)
+            'receiver',         // Foreign key on transactions (to wallets table)
+            'id',               // Local key on customers table
+            'id'                // Local key on wallets table
+        );
+    }
 }

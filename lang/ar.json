@@ -73,6 +73,9 @@
     "Reason": "السبب",
     "Status": "الحالة",
     "Pending" : "منتظر التأكيد",
+    "pending" : "منتظر التأكيد",
+    "completed" : "مكتملة",
+    "Failed" : "فشل",
     "Accepted": "مقبول",
     "Rejected": "مرفوض",
     "Wallet Recharge": "شحن المحفظة",
@@ -110,5 +113,12 @@
     "Images": "الصور",
     "Location": "الموقع",
     "Longitude": "خطوط الطول",
-    "Latitude": "دوائر العرض"
+    "Latitude": "دوائر العرض",
+    "Type": "نوع المعاملة",
+    "Sender": "المرسل",
+    "Receiver": "المستلم",
+    "Sent Transactions": "المعاملات المرسلة",
+    "Pay": "دفع",
+    "Transfer": "تحويل",
+    "Received Transactions": "المعاملات المستقبلة"
 }

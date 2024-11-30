@@ -5,6 +5,8 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\CustomerAllResource\Pages;
 use App\Filament\Resources\CustomerAllResource\RelationManagers\FavoritesRelationManager;
 use App\Filament\Resources\CustomerAllResource\RelationManagers\PlaceOrdersRelationManager;
+use App\Filament\Resources\CustomerAllResource\RelationManagers\ReceivedTransactionsRelationManager;
+use App\Filament\Resources\CustomerAllResource\RelationManagers\SentTransactionsRelationManager;
 use App\Filament\Resources\CustomerAllResource\RelationManagers\WalletRelationManager;
 use App\Models\Customer;
 use Filament\Forms;
@@ -121,6 +123,8 @@ class CustomerAllResource extends Resource
             PlaceOrdersRelationManager::class,
             WalletRelationManager::class,
             FavoritesRelationManager::class,
+            SentTransactionsRelationManager::class,
+            ReceivedTransactionsRelationManager::class,
         ];
     }
 
