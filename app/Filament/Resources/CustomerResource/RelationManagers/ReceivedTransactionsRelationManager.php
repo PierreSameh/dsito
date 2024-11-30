@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\CustomerAllResource\RelationManagers;
+namespace App\Filament\Resources\CustomerResource\RelationManagers;
 
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -11,24 +11,24 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Database\Eloquent\Model;
 
-class SentTransactionsRelationManager extends RelationManager
+class ReceivedTransactionsRelationManager extends RelationManager
 {
-    protected static string $relationship = 'sentTransactions';
+    protected static string $relationship = 'receivedTransactions';
     public static function getLabel(): ?string
     {
-        return __('Sent Transactions');  // Translation function works here
+        return __('Received Transactions');  // Translation function works here
     }
     public static function getRecordTitleAttribute(): ?string
     {
-        return __("Sent Transactions");
+        return __("Received Transactions");
     }
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return __("Sent Transactions");
+        return __("Received Transactions");
     }
     public static function getPluralLabel(): ?string
     {
-        return __("Sent Transactions");
+        return __("Received Transactions");
     }
 
     public function form(Form $form): Form
@@ -50,7 +50,7 @@ class SentTransactionsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('amount')
             ->columns([
-                Tables\Columns\TextColumn::make('receiverWallet.customer.username')->label(__('Receiver')),
+                Tables\Columns\TextColumn::make('senderWallet.customer.username')->label(__('Sender')),
                 Tables\Columns\TextColumn::make('amount')->money('EGP')->label(__('Amount')),
                 Tables\Columns\TextColumn::make('type')
                 ->formatStateUsing(

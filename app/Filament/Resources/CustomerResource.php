@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\CustomerResource\RelationManagers\ReceivedTransactionsRelationManager;
+use App\Filament\Resources\CustomerResource\RelationManagers\SentTransactionsRelationManager;
 use App\Filament\Resources\CustomerResource\Pages;
 use App\Filament\Resources\CustomerResource\RelationManagers;
 use App\Filament\Resources\CustomerResource\RelationManagers\OrdersRelationManager;
@@ -136,6 +138,8 @@ class CustomerResource extends Resource
         return [
             OrdersRelationManager::class,
             WalletRelationManager::class,
+            SentTransactionsRelationManager::class,
+            ReceivedTransactionsRelationManager::class,
         ];
     }
 

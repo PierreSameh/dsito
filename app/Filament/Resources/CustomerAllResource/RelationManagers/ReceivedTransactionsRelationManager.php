@@ -38,7 +38,7 @@ class ReceivedTransactionsRelationManager extends RelationManager
                 Forms\Components\TextInput::make('amount')
                     ->label(__('Amount'))
                     ->required()
-                    ->prefix('EGP: ')
+                    ->money('EGP')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('type')->label(__('Type')),
                 Forms\Components\TextInput::make('status')->label(__('Status')),
@@ -51,7 +51,7 @@ class ReceivedTransactionsRelationManager extends RelationManager
             ->recordTitleAttribute('amount')
             ->columns([
                 Tables\Columns\TextColumn::make('senderWallet.customer.username')->label(__('Sender')),
-                Tables\Columns\TextColumn::make('amount')->prefix('EGP: ')->label(__('Amount')),
+                Tables\Columns\TextColumn::make('amount')->money('EGP')->label(__('Amount')),
                 Tables\Columns\TextColumn::make('type')
                 ->formatStateUsing(
                     fn ($state) => match ($state) {

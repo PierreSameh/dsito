@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\CustomerAllResource\RelationManagers;
+namespace App\Filament\Resources\CustomerResource\RelationManagers;
 
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 class SentTransactionsRelationManager extends RelationManager
 {
     protected static string $relationship = 'sentTransactions';
+
     public static function getLabel(): ?string
     {
         return __('Sent Transactions');  // Translation function works here
